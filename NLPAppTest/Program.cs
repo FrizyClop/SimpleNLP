@@ -1,4 +1,5 @@
 ﻿using SimpleNLP;
+using SimpleNLP.Preprocessing;
 
 // Создаём экземпляр класса NLPProcessor
 var nlpProcessor = new NLPProcessor();

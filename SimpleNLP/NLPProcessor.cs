@@ -1,4 +1,6 @@
-﻿namespace SimpleNLP
+﻿using SimpleNLP.Preprocessing;
+
+namespace SimpleNLP
 {
     public class NLPProcessor
     {
@@ -11,41 +13,10 @@
             stream_reader.Close();
         }
 
-        // Токенизация текста
-        public IEnumerable<string> Tokenize(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return Enumerable.Empty<string>();
-
-            // Разделяем текст на слова, убирая знаки препинания
-            var tokens = text.Split(new[] { ' ', '.', ',', '!', '?', ';', ':', '-', '—', '(', ')', '/', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            return tokens.Select(token => token.ToLowerInvariant());
-        }
-
-        public IEnumerable<string> FilterTokens(IEnumerable<string> tokens)
-        {
-            var filtred_tokens = RemoveStopWords(tokens);
-            filtred_tokens = RemoveNumbers(filtred_tokens);
-            return filtred_tokens;
-        }
-
         public IEnumerable<string> Stemming(IEnumerable<string> tokenized_words)
         {
             Stemmer stemmer = new Stemmer();
             return stemmer.Stemming(tokenized_words);
-        }
-
-        // Удаление стоп-слов
-        public IEnumerable<string> RemoveStopWords(IEnumerable<string> tokens)
-        {
-            return tokens.Where(token => !stop_words.Contains(token));
-        }
-
-        // Удаление чисел
-        public IEnumerable<string> RemoveNumbers(IEnumerable<string> tokens)
-        {
-            int num;
-            return tokens.Where(token => !int.TryParse(token,out num));
         }
 
         // Подсчет частоты слов
@@ -69,10 +40,8 @@
         // Полный анализ текста
         public Dictionary<string, int> AnalyzeText(string text)
         {
-            var tokens = Tokenize(text);
-            tokens = Stemming(tokens);
-            var filteredTokens = FilterTokens(tokens);
-            return CountWordFrequency(filteredTokens);
+            var preprocessed_text = Preprocessor.Preprocess(text);
+            return CountWordFrequency(preprocessed_text);
         }
     }
 }
