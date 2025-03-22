@@ -13,8 +13,10 @@ stream_reader.Close();
 // Анализируем текст
 var wordFrequency = nlpProcessor.AnalyzeText(text);
 
+int i = 1;
 // Выводим результаты
 foreach (var word_frequency in wordFrequency)
 {
-    Console.WriteLine($"{word_frequency.Key}: {word_frequency.Value}");
+    Console.WriteLine($"{i}. {word_frequency.Key}: {word_frequency.Value}");
+    i++;
 }

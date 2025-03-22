@@ -4,19 +4,9 @@ namespace SimpleNLP
 {
     public class NLPProcessor
     {
-        private readonly HashSet<string> stop_words;
-
         public NLPProcessor()
         {
-            StreamReader stream_reader = new StreamReader("russian_stop_words.txt");
-            stop_words = stream_reader.ReadToEnd().Split("\n").ToHashSet<string>();
-            stream_reader.Close();
-        }
 
-        public IEnumerable<string> Stemming(IEnumerable<string> tokenized_words)
-        {
-            Stemmer stemmer = new Stemmer();
-            return stemmer.Stemming(tokenized_words);
         }
 
         // Подсчет частоты слов
@@ -40,7 +30,7 @@ namespace SimpleNLP
         // Полный анализ текста
         public Dictionary<string, int> AnalyzeText(string text)
         {
-            var preprocessed_text = Preprocessor.Preprocess(text);
+            var preprocessed_text = Preprocessor.Preprocess(text, MethodOfOneForm.LEMMATIZATOR);
             return CountWordFrequency(preprocessed_text);
         }
     }
