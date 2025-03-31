@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,12 @@ namespace SimpleNLP.Preprocessing
     /// </summary>
     internal static class Filtrator
     {
+        public static List<List<string>> FilterSentences(List<List<string>> tokenized_sentences)
+        {
+            for(int i = 0; i < tokenized_sentences.Count;i++)
+                tokenized_sentences[i] = FilterTokens(tokenized_sentences[i]);
+            return tokenized_sentences;
+        }
         /// <summary>
         /// Метод фильтрации токенов, удаляющий русские стоп-слова и числа
         /// </summary>
@@ -20,6 +27,7 @@ namespace SimpleNLP.Preprocessing
         {
             var filtred_tokens = RemoveStopWords(tokens);
             filtred_tokens = RemoveNumbers(filtred_tokens);
+            filtred_tokens = RemoveOneLetter(filtred_tokens);
             return filtred_tokens;
         }
 
@@ -45,6 +53,16 @@ namespace SimpleNLP.Preprocessing
         {
             int num;
             return tokens.Where(token => !int.TryParse(token, out num)).ToList();
+        }
+
+        /// <summary>
+        /// Метод удаления токенов состоящих из одной буквы
+        /// </summary>
+        /// <param name="tokens">Список токенов</param>
+        /// <returns>Список токенов без токенов состоящих из одной буквы</returns>
+        private static List<string> RemoveOneLetter(List<string> tokens)
+        {
+            return tokens.Where(token => token.Length > 1).ToList();
         }
     }
 }

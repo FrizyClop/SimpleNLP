@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SimpleNLP.Preprocessing
@@ -17,17 +18,31 @@ namespace SimpleNLP.Preprocessing
         /// </summary>
         /// <param name="text">Данные для предподготовки</param>
         /// <returns>(предварительно) Список слов из текста в виде токенов</returns>
-        public static List<string> Preprocess(string text, MethodOfOneForm stem_or_lemm)
+        public static List<string> Preprocess(string text, MethodOfOneForm reduction_to_one_form = MethodOfOneForm.NONE)
         {
-            var tokens = Tokenizer.Tokenize(text);  //Токенизируем текст, и приводим все слова к нижнему регистру
-            tokens = Filtrator.FilterTokens(tokens);//Фильтруем токены, удаляя русские стоп-слова и числа
-            if(stem_or_lemm == MethodOfOneForm.STEMMER)
-                tokens = Stemmer.Stemming(tokens);  //Используем стемминг для упрощения форм слов
-            else                                                            //иначе
-                tokens = Lemmatizator.Lemmatization(tokens); //Используем лемматизатор для приведения к одной форме
-            return tokens;                                      //Возвращаем отфильтрованный список токенов
+            List<string> tokens = Tokenizer.TokenizeText(text);
+            tokens = Filtrator.FilterTokens(tokens);
+            switch(reduction_to_one_form)
+            {
+                case MethodOfOneForm.NONE:
+                {
+                    break;
+                }
+                case MethodOfOneForm.STEMMER:
+                {
+                    tokens = Stemmer.Stemming(tokens);  //Используем стемминг для упрощения форм слов
+                    break;
+                }
+                case MethodOfOneForm.LEMMATIZATOR:
+                {
+                    tokens = Lemmatizator.Lemmatization(tokens); //Используем лемматизатор для приведения к одной форме
+                    break;
+                }
+            }
+
+            return tokens;  //Возвращаем отфильтрованный список токенов
         }
     }
 
-    public enum MethodOfOneForm { STEMMER, LEMMATIZATOR }
+    public enum MethodOfOneForm { NONE ,STEMMER, LEMMATIZATOR }
 }

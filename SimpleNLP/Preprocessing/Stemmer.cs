@@ -37,6 +37,13 @@ namespace SimpleNLP.Preprocessing
         //удаление суффикса "нн"
         private static Regex NN = new Regex("нн$");
 
+        public static List<List<string>> StemmingAll(List<List<string>> tokenized_sentences)
+        {
+            for (int i = 0; i < tokenized_sentences.Count; i++)
+                tokenized_sentences[i] = Stemming(tokenized_sentences[i]);
+            return tokenized_sentences;
+        }
+
         public static List<string> Stemming(List<string> words)
         {
             if (words.Count == 0) return words;

@@ -8,6 +8,13 @@ namespace SimpleNLP.Preprocessing
 {
     internal static class Lemmatizator
     {
+        public static List<List<string>> LemmatizationAll(List<List<string>> tokenized_sentences)
+        {
+            for (int i = 0; i < tokenized_sentences.Count; i++)
+                tokenized_sentences[i] = Lemmatization(tokenized_sentences[i]);
+            return tokenized_sentences;
+        }
+
         public static List<string> Lemmatization(List<string> words)
         {
             if (words.Count == 0) return words;
@@ -20,7 +27,10 @@ namespace SimpleNLP.Preprocessing
 
         private static string FindLemm(string word)
         {
-            using (StreamReader reader = new StreamReader("lemms.csv"))
+            if(word.Length <= 0) return word;
+            if (Convert.ToInt16(word[0]) <= 127) return word;   //пропуск слов на английском языке
+
+            using (StreamReader reader = new StreamReader("Dictionary\\" + word[0] + ".txt"))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
