@@ -59,7 +59,7 @@ namespace SimpleNLP.Preprocessing
                 return new List<string>();
 
             // Разделяем текст на слова, убирая знаки препинания
-            var tokens = text.Split(new[] { ' ', '.', ',', '!', '?', ';', ':', '-', '—', '(', ')', '/', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            var tokens = text.Split(new[] { ' ', '.', ',', '!', '?', ';', ':', '-', '—', '(', ')', '<', '>', '«', '»', '[', ']', '/', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             return tokens.Select(token => token.ToLowerInvariant()).ToList();
         }
     }

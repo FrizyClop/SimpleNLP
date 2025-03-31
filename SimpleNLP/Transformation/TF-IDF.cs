@@ -17,7 +17,7 @@ namespace SimpleNLP.Transformation
             foreach (var term in vocabulary)
             {
                 int docsContainingTerm = documents.Count(doc => doc.Contains(term));
-                idfValues[term] = Math.Log((double)totalDocs / (1 + docsContainingTerm));
+                idfValues[term] = Math.Log((double)totalDocs / (docsContainingTerm));
             }
 
             return idfValues;
@@ -38,13 +38,20 @@ namespace SimpleNLP.Transformation
         }
 
         // Векторизует все документы
-        public static List<double[]> VectorizeAll(List<List<string>> documents, HashSet<string> vocabulary)
+        public static List<double[]> VectorizeAll(List<List<string>> documents)
         {
+            HashSet<string> vocabulary = BuildVocabulary(documents);
             Dictionary<string,double> idfCache = CalculateIdfValues(documents, vocabulary);
             List<double[]> vectors = new List<double[]>();
             foreach (List<string> document in documents)
                 vectors.Add(Vectorize(document,idfCache,vocabulary));
             return vectors;
+        }
+
+        // Строит словарь уникальных слов из всех документов
+        private static HashSet<string> BuildVocabulary(List<List<string>> docs)
+        {
+            return new HashSet<string>(docs.SelectMany(doc => doc));
         }
     }
 }
