@@ -93,5 +93,71 @@ namespace SimpleNLP.Classification
 
             return predictions;
         }
+
+        public string Predict(double[] X)
+        {
+            double maxLogProb = double.NegativeInfinity;
+            string bestClass = null;
+
+            foreach (var c in classes)
+            {
+                double logProb = Math.Log(classProbs[c]);
+
+                for (int j = 0; j < vocabSize; j++)
+                {
+                    if (X[j] > 0) // Если признак (слово) присутствует
+                    {
+                        logProb += Math.Log(featureProbs[c][j]) * X[j]; // Учитываем TF-IDF вес
+                    }
+                }
+
+                if (logProb > maxLogProb)
+                {
+                    maxLogProb = logProb;
+                    bestClass = c;
+                }
+            }
+
+            return bestClass;
+        }
+
+        public Dictionary<string, double> PredictProbabilities(double[] x)
+        {
+            var probabilities = new Dictionary<string, double>();
+            double total = 0.0;
+
+            foreach (var c in classes)
+            {
+                // Начинаем с логарифма вероятности класса
+                double logProb = Math.Log(classProbs[c]);
+
+                // Добавляем вклад каждого признака
+                for (int j = 0; j < vocabSize; j++)
+                {
+                    if (x[j] > 0) // Если признак присутствует
+                    {
+                        logProb += Math.Log(featureProbs[c][j]) * x[j];
+                    }
+                }
+
+                // Преобразуем из логарифмической шкалы обратно в вероятности
+                double prob = Math.Exp(logProb);
+                probabilities[c] = prob;
+                total += prob;
+            }
+
+            // Нормализуем вероятности
+            foreach (var c in classes)
+            {
+                probabilities[c] /= total;
+            }
+
+            return probabilities;
+        }
+
+        public List<Dictionary<string, double>> PredictProbabilities(List<double[]> X)
+        {
+            return X.Select(x => PredictProbabilities(x)).ToList();
+        }
     }
 }

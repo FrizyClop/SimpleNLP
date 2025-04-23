@@ -11,7 +11,7 @@ namespace SimpleNLP.Preprocessing
     /// <summary>
     /// Внутренний класс, используемый для предподготовки данных к анализу
     /// </summary>
-    internal static class Preprocessor
+    public static class Preprocessor
     {
         /// <summary>
         /// Метод предподготовки данных перед анализом

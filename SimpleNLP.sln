@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35514.174 d17.12
+VisualStudioVersion = 17.12.35514.174
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleNLP", "SimpleNLP\SimpleNLP.csproj", "{CBBF60AE-35E7-4C0F-9CEE-05C3CC0EE590}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLPAppTest", "NLPAppTest\NLPAppTest.csproj", "{CC263B77-93EF-43DB-AD4F-C68D1F008109}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleNLPApp", "SimpleNLPApp\SimpleNLPApp.csproj", "{A6771A8B-C367-4AC4-B4BB-8BAACE1409A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{CC263B77-93EF-43DB-AD4F-C68D1F008109}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC263B77-93EF-43DB-AD4F-C68D1F008109}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC263B77-93EF-43DB-AD4F-C68D1F008109}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6771A8B-C367-4AC4-B4BB-8BAACE1409A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6771A8B-C367-4AC4-B4BB-8BAACE1409A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6771A8B-C367-4AC4-B4BB-8BAACE1409A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6771A8B-C367-4AC4-B4BB-8BAACE1409A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
