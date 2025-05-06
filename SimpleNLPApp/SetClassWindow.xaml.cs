@@ -14,11 +14,17 @@ namespace SimpleNLPApp
         public SetClassWindow(ComboBox cb, ListBox list)
         {
             InitializeComponent();
-            string[] temp = new string[cb.Items.Count];
-            cb.Items.CopyTo(temp,1); //проблемы здесь, надо сделать свой CopyTo
-            ComboBoxOnWindow.ItemsSource = temp;
+            CopyInfoToComboBox(cb);
             ComboBoxOnWindow.SelectedIndex = 0;
             _listBox = list;
+        }
+
+        public void CopyInfoToComboBox(ComboBox cb)
+        {
+            for (int i = 1; i < cb.Items.Count; i++)
+            {
+                ComboBoxOnWindow.Items.Add(cb.Items[i]);
+            }
         }
 
         private void ButtonAccept_Click(object sender, RoutedEventArgs e)
@@ -33,6 +39,7 @@ namespace SimpleNLPApp
                 item.ClassOfText = ComboBoxOnWindow.Text;
             }
             MessageBox.Show("Классы текстов изменены");
+            Close();
         }
     }
 }

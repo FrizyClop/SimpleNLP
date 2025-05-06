@@ -28,24 +28,29 @@ namespace SimpleNLP.Preprocessing
         private static string FindLemm(string word)
         {
             if(word.Length <= 0) return word;
-            if (Convert.ToInt16(word[0]) <= 127) return word;   //пропуск слов на английском языке
-
-            using (StreamReader reader = new StreamReader("Dictionary\\" + word[0] + ".txt"))
+            char firstChar = word[0];
+            if ((firstChar >= 'А' && firstChar <= 'Я') ||
+            (firstChar >= 'а' && firstChar <= 'я') ||
+            firstChar == 'Ё' || firstChar == 'ё')
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                using (StreamReader reader = new StreamReader("Dictionary\\" + word[0] + ".txt"))
                 {
-                    if (!line.StartsWith(word[0]))
-                        continue;
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (!line.StartsWith(word[0]))
+                            continue;
 
-                    string[] parts = line.Split(';');
-                    if (parts[0] == word)
-                        return parts[1];
+                        string[] parts = line.Split(';');
+                        if (parts[0] == word)
+                            return parts[1];
+                    }
+                    reader.Close();
+                    reader.Dispose();
                 }
-                reader.Close();
-                reader.Dispose();
+                return word;
             }
-            return word;
+            else { return word; }
         }
     }
 }

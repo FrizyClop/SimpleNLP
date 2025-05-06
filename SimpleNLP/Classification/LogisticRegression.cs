@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
+using System.Text.Json;
 
 namespace SimpleNLP.Classification
 {
-    public class LogisticRegression
+    public class LogisticRegression : PredictModel
     {
         private double[][] weights; // weights[k][j] — вес для класса k и признака j
         private double[] biases;    // biases[k] — смещение для класса k
@@ -30,7 +27,7 @@ namespace SimpleNLP.Classification
         }
 
         // Обучение модели (принимает List<double[]> и List<string>)
-        public void Train(List<double[]> X, List<string> y)
+        public override void Fit(List<double[]> X, List<string> y)
         {
             if (X.Count != y.Count)
                 throw new ArgumentException("Количество образцов и меток должно совпадать.");
@@ -93,7 +90,7 @@ namespace SimpleNLP.Classification
         }
 
         // Предсказание вероятностей для каждого класса
-        public Dictionary<string, double> PredictProbabilities(double[] x)
+        public override Dictionary<string, double> PredictProbabilities(double[] x)
         {
             double[] scores = new double[_classes.Count];
             for (int k = 0; k < _classes.Count; k++)
@@ -106,24 +103,39 @@ namespace SimpleNLP.Classification
             return result;
         }
 
-        public List<Dictionary<string, double>> PredictProbabilities(List<double[]> batchX)
+        public override List<Dictionary<string, double>> PredictProbabilities(List<double[]> batchX)
         {
             return batchX.Select(x => PredictProbabilities(x)).ToList();
         }
 
         // Предсказание класса (возвращает строку с именем класса)
-        public string Predict(double[] x)
+        public override string Predict(double[] x)
         {
             var proba = PredictProbabilities(x);
             return proba.OrderByDescending(p => p.Value).First().Key;
         }
 
-        public List<string> Predict(List<double[]> X)
+        public override List<string> Predict(List<double[]> X)
         {
             List<string> predictions = new List<string>();
             foreach (double[] x in X)
                 predictions.Add(Predict(x));
             return predictions;
+        }
+
+        public override string GetJsonRepresentation()
+        {
+            var data = new
+            {
+                Model = "LogisticRegression",
+                Weights = weights,
+                Biases = biases,
+                LearningRate = learningRate,
+                Epochs = epochs,
+                ClassToIndex = _classToIndex,
+                Classes = _classes
+            };
+            return JsonSerializer.Serialize(data);
         }
     }
 }

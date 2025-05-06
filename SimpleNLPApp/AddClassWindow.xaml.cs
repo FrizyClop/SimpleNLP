@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SimpleNLPApp
 {
@@ -20,11 +9,13 @@ namespace SimpleNLPApp
     public partial class AddClassWindow : Window
     {
         ComboBox _comboBox;
+        List<string> link_to_list;
 
-        public AddClassWindow(ComboBox cb)
+        public AddClassWindow(ComboBox cb, List<string> classes)
         {
             InitializeComponent();
             _comboBox = cb;
+            link_to_list = classes;
         }
 
         private void AddClassButton_Click(object sender, RoutedEventArgs e)
@@ -43,6 +34,7 @@ namespace SimpleNLPApp
                 return;
             }
             _comboBox.Items.Add(name_of_class);
+            link_to_list.Add(name_of_class);
             MessageBox.Show("Класс '" + name_of_class + "' успешно добавлен.");
             this.Close();
         }

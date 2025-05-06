@@ -1,12 +1,46 @@
-﻿<Window x:Name="MainWindow1" x:Class="SimpleNLPApp.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimpleNLPApp"
+        xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Name="MainWindow1" x:Class="SimpleNLPApp.MainWindow"
         mc:Ignorable="d"
-        Title="Главное меню" Height="450" Width="306" AutomationProperties.IsOffscreenBehavior="Onscreen" WindowStartupLocation="CenterScreen">
-    <Grid>
-        <Button x:Name="buttonNewModel" Content="Новая модель" HorizontalAlignment="Center" Margin="0,169,0,0" VerticalAlignment="Top" FontSize="20" Width="264" Click="buttonNewModel_Click"/>
+        Title="Главное меню" Height="367" Width="343" AutomationProperties.IsOffscreenBehavior="Onscreen" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+    <Grid Margin="0,0,0,-12">
+        <Grid x:Name="MenuNewModel">
+            <Label x:Name="LabelName" Content="Название модели:" Margin="10,46,167,0" VerticalAlignment="Top" FontSize="16"/>
+            <TextBox x:Name="TextBoxName" Margin="158,50,24,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="16" Text="Untitled"/>
+            <Label x:Name="LabelType" Content="Тип модели:" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" FontSize="16"/>
+            <ComboBox x:Name="ComboBoxType" Margin="115,84,24,0" VerticalAlignment="Top" FontSize="16" SelectionChanged="ComboBoxType_SelectionChanged">
+                <System:String>Наивный Байес</System:String>
+                <System:String>Логистическая регрессия</System:String>
+            </ComboBox>
+            <Canvas x:Name="Parameters" Margin="0,122,0,94">
+                <Label Content="Параметры:" Canvas.Left="8" Canvas.Top="2" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                <Grid x:Name="BayesParameters" Height="147" Width="343">
+                    <Label x:Name="Label" Content="Alpha:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,28,0,0"/>
+                    <Slider x:Name="SliderAlpha" Width="215" Value="1" Maximum="2" Height="20" SmallChange="0.01" ValueChanged="SliderAlpha_ValueChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="104,35,0,0" FontSize="16"/>
+                    <Label x:Name="LabelAlpha" Content="1.0 " FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="64,28,0,0"/>
+                </Grid>
+                <Grid x:Name="LogisticRegressionParameters" Height="147" Width="343">
+                    <Label Content="Learning rate:" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <ComboBox x:Name="ComboBoxLearningRate" HorizontalAlignment="Left" Margin="121,32,0,0" VerticalAlignment="Top" Width="195" FontSize="16" SelectedIndex="1">
+                        <System:String>0,1</System:String>
+                        <System:String>0,01</System:String>
+                        <System:String>0,001</System:String>
+                    </ComboBox>
+                    <Label Content="Epochs:" HorizontalAlignment="Left" Margin="10,66,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Slider x:Name="SliderEpochs" HorizontalAlignment="Left" Margin="121,74,0,0" VerticalAlignment="Top" Width="195" FontSize="16" Minimum="10" SmallChange="1" LargeChange="10" Maximum="1000" Value="500" ValueChanged="SliderEpochs_ValueChanged" IsSnapToTickEnabled="True"/>
+                    <Label x:Name="LabelEpochs" Content="500" HorizontalAlignment="Left" Margin="69,66,0,0" VerticalAlignment="Top" FontSize="16"/>
+                </Grid>
+            </Canvas>
+            <Button x:Name="ButtonPrev" Content="Назад" Margin="25,269,196,0" FontSize="16" Height="47" VerticalAlignment="Top" Click="ButtonPrev_Click"/>
+            <Button x:Name="ButtonCreate" Content="Создать" Margin="196,269,25,0" FontSize="16" Height="47" VerticalAlignment="Top" Click="ButtonCreate_Click"/>
+        </Grid>
+        <StackPanel x:Name="MainMenu" Margin="0,100,0,85">
+            <Button x:Name="ButtonNewModel" FontSize="16" Height="40" Width="300" Content="Новая модель" Click="buttonNewModel_Click"/>
+            <Button x:Name="ButtonOpenModel" FontSize="16" Height="40" Width="300"  Content="Загрузить модель"/>
+        </StackPanel>
     </Grid>
 </Window>

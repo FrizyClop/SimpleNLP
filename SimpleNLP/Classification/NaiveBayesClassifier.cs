@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SimpleNLP.Classification
 {
-    public class NaiveBayesClassifier
+    public class NaiveBayesClassifier : PredictModel
     {
         private double alpha; // Лапласовский параметр
         private Dictionary<string, double> classProbs; // P(c)
@@ -22,7 +23,7 @@ namespace SimpleNLP.Classification
             this.classes = new List<string>();
         }
 
-        public void Fit(List<double[]> X, List<string> y)
+        public override void Fit(List<double[]> X, List<string> y)
         {
             // Определяем классы
             this.classes = y.Distinct().ToList();
@@ -61,7 +62,7 @@ namespace SimpleNLP.Classification
             }
         }
 
-        public List<string> Predict(List<double[]> X)
+        public override List<string> Predict(List<double[]> X)
         {
             var predictions = new List<string>();
             for (int i = 0; i < X.Count; i++)
@@ -94,7 +95,7 @@ namespace SimpleNLP.Classification
             return predictions;
         }
 
-        public string Predict(double[] X)
+        public override string Predict(double[] X)
         {
             double maxLogProb = double.NegativeInfinity;
             string bestClass = null;
@@ -121,7 +122,7 @@ namespace SimpleNLP.Classification
             return bestClass;
         }
 
-        public Dictionary<string, double> PredictProbabilities(double[] x)
+        public override Dictionary<string, double> PredictProbabilities(double[] x)
         {
             var probabilities = new Dictionary<string, double>();
             double total = 0.0;
@@ -155,9 +156,23 @@ namespace SimpleNLP.Classification
             return probabilities;
         }
 
-        public List<Dictionary<string, double>> PredictProbabilities(List<double[]> X)
+        public override List<Dictionary<string, double>> PredictProbabilities(List<double[]> X)
         {
             return X.Select(x => PredictProbabilities(x)).ToList();
+        }
+
+        public override string GetJsonRepresentation()
+        {
+            var data = new
+            {
+                Model = "NaiveBayes",
+                Alpha = alpha,
+                ClassProbs = classProbs,
+                FeatureProbs = featureProbs,
+                Classes = classes,
+                VocabSize = vocabSize
+            };
+            return JsonSerializer.Serialize(data);
         }
     }
 }
