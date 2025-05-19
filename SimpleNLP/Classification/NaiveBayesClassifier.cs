@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 
 namespace SimpleNLP.Classification
 {
@@ -12,54 +7,67 @@ namespace SimpleNLP.Classification
         private double alpha; // Лапласовский параметр
         private Dictionary<string, double> classProbs; // P(c)
         private Dictionary<string, Dictionary<int, double>> featureProbs; // P(w_i|c)
-        private List<string> classes;
         private int vocabSize;
+
+        public double Alpha { get { return alpha; } }
+        public int VocabularySize { get { return vocabSize; } }
+        public Dictionary<string, Dictionary<int, double>> FeatureProbs { get { return featureProbs; } }
+        public Dictionary<string, double> ClassProbs {  get { return classProbs; } }
 
         public NaiveBayesClassifier(double alpha = 1.0)
         {
             this.alpha = alpha;
             this.classProbs = new Dictionary<string, double>();
             this.featureProbs = new Dictionary<string, Dictionary<int, double>>();
-            this.classes = new List<string>();
+            this._classes = new List<string>();
+        }
+
+        public NaiveBayesClassifier(JsonElement json)
+        {
+            alpha = json.GetProperty("Alpha").GetDouble();
+            classProbs = json.GetProperty("ClassProbs").Deserialize<Dictionary<string, double>>();
+            featureProbs = json.GetProperty("FeatureProbs").Deserialize<Dictionary<string, Dictionary<int, double>>>();
+            _classes = json.GetProperty("Classes").Deserialize<List<string>>();
+            vocabSize = json.GetProperty("VocabSize").GetInt32();
+            _isTrained = json.GetProperty("IsTrained").GetBoolean();
         }
 
         public override void Fit(List<double[]> X, List<string> y)
         {
             // Определяем классы
-            this.classes = y.Distinct().ToList();
+            this._classes = y.Distinct().ToList();
             int totalDocs = y.Count;
 
             // Вычисляем P(c) для каждого класса
-            foreach (var c in classes)
-            {
-                int count = y.Count(label => label == c);
-                classProbs[c] = (double)count / totalDocs;
-            }
+            classProbs = _classes.ToDictionary(c => c, c => (double)y.Count(label => label == c) / totalDocs);
 
             // Размер словаря (количество признаков TF-IDF)
             vocabSize = X[0].Length;
 
             // Вычисляем P(w_i|c) с лапласовским сглаживанием
-            foreach (var c in classes)
+            foreach (var c in _classes)
             {
                 // Выбираем документы текущего класса
-                var classDocs = X.Where((_, idx) => y[idx] == c).ToArray();
+                var classDocs = X.Where((_, idx) => y[idx] == c).ToList();
 
-                // Сумма TF-IDF по всем документам класса (для нормировки)
+                // Сумма TF-IDF по всем документам класса (без alpha!)
                 double[] featureSums = new double[vocabSize];
                 for (int i = 0; i < vocabSize; i++)
                 {
-                    featureSums[i] = classDocs.Sum(doc => doc[i]) + alpha; // + alpha (сглаживание)
+                    featureSums[i] = classDocs.Sum(doc => doc[i]);
                 }
-                double totalSum = featureSums.Sum();
 
-                // Сохраняем P(w_i|c)
+                // Общий TF-IDF класса + alpha * размер словаря (для нормировки)
+                double totalSum = featureSums.Sum() + alpha * vocabSize;
+
+                // Сохраняем P(w_i|c) = (TF-IDF слова в классе + alpha) / (totalSum)
                 featureProbs[c] = new Dictionary<int, double>();
                 for (int i = 0; i < vocabSize; i++)
                 {
-                    featureProbs[c][i] = featureSums[i] / totalSum;
+                    featureProbs[c][i] = (featureSums[i] + alpha) / totalSum;
                 }
             }
+            _isTrained = true;
         }
 
         public override List<string> Predict(List<double[]> X)
@@ -70,7 +78,7 @@ namespace SimpleNLP.Classification
                 double maxLogProb = double.NegativeInfinity;
                 string bestClass = null;
 
-                foreach (var c in classes)
+                foreach (var c in _classes)
                 {
                     double logProb = Math.Log(classProbs[c]);
 
@@ -100,7 +108,7 @@ namespace SimpleNLP.Classification
             double maxLogProb = double.NegativeInfinity;
             string bestClass = null;
 
-            foreach (var c in classes)
+            foreach (var c in _classes)
             {
                 double logProb = Math.Log(classProbs[c]);
 
@@ -127,28 +135,27 @@ namespace SimpleNLP.Classification
             var probabilities = new Dictionary<string, double>();
             double total = 0.0;
 
-            foreach (var c in classes)
+            foreach (var c in _classes)
             {
-                // Начинаем с логарифма вероятности класса
                 double logProb = Math.Log(classProbs[c]);
 
-                // Добавляем вклад каждого признака
                 for (int j = 0; j < vocabSize; j++)
                 {
-                    if (x[j] > 0) // Если признак присутствует
+                    if (x[j] > 0)
                     {
-                        logProb += Math.Log(featureProbs[c][j]) * x[j];
+                        double prob = featureProbs[c][j];
+                        // Защита от log(0)
+                        logProb += Math.Log(Math.Max(prob, 1e-10)) * x[j];
                     }
                 }
 
-                // Преобразуем из логарифмической шкалы обратно в вероятности
-                double prob = Math.Exp(logProb);
-                probabilities[c] = prob;
-                total += prob;
+                double probExp = Math.Exp(logProb);
+                probabilities[c] = probExp;
+                total += probExp;
             }
 
-            // Нормализуем вероятности
-            foreach (var c in classes)
+            // Нормализация
+            foreach (var c in _classes)
             {
                 probabilities[c] /= total;
             }
@@ -169,8 +176,9 @@ namespace SimpleNLP.Classification
                 Alpha = alpha,
                 ClassProbs = classProbs,
                 FeatureProbs = featureProbs,
-                Classes = classes,
-                VocabSize = vocabSize
+                Classes = _classes,
+                VocabSize = vocabSize,
+                IsTrained = _isTrained
             };
             return JsonSerializer.Serialize(data);
         }

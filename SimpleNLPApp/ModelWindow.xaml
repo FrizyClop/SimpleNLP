@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimpleNLPApp"
         mc:Ignorable="d"
-        Title="ModelWindow" Height="450" Width="800" Closed="Window_Closed" ResizeMode="NoResize">
+        Title="ModelWindow" Height="450" Width="800" Closed="Window_Closed">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="15*"/>
@@ -20,23 +20,25 @@
                 <MenuItem x:Name="MenuItemAddClass" Header="Добавить класс" FontSize="16" Click="MenuItemAddClass_Click"/>
                 <MenuItem x:Name="MenuItemDeleteClass" Header="Удалить класс" FontSize="16" Click="MenuItemDeleteClass_Click"/>
                 <MenuItem x:Name="MenuItemAddText" Header="Добавить текстовый файл" FontSize="16" Click="MenuItemAddText_Click"/>
+                <MenuItem x:Name="MenuItemAddTextWithout" Header="Добавить текстовый файл без обработки" FontSize="16" Click="MenuItemAddTextWithout_Click"/>
                 <MenuItem x:Name="MenuItemFit" Header="Тренировать модель" FontSize="16" Click="MenuItemFit_Click"/>
             </MenuItem>
             <MenuItem x:Name="MenuItemTest" Header="Тест" FontSize="16">
                 <MenuItem x:Name="MenuItemClassificationOfText" Header="Классификация текста" Click="MenuItemClassificationOfText_Click"/>
             </MenuItem>
         </Menu>
-        <ListBox x:Name="ListBoxTrainTexts" FontSize="18" SelectionMode="Multiple" Grid.Row="1" Margin="0,101,0,0" Height="303" VerticalAlignment="Top" HorizontalAlignment="Left" Width="800">
+        <ListBox x:Name="ListBoxTrainTexts" FontSize="18" SelectionMode="Multiple" Grid.Row="1" Margin="0,101,0,0">
             <ListBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Изменить класс" Click="ContextMenuSetClass_Click"></MenuItem>
-                    <MenuItem Header="Удалить текст" Click="ContextMenuDeleteText_Click"></MenuItem>
+                    <MenuItem Header="Изменить класс" Click="ContextMenuSetClass_Click"/>
+                    <MenuItem Header="Удалить текст" Click="ContextMenuDeleteText_Click"/>
+                    <MenuItem Header="Добавить/Удалить предобработку" Click="ContextMenuAddDeletePreprocessing_Click"/>
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>
-        <Label Content="Сортировка по классам:" FontSize="16" Margin="0,0,581,308" Grid.Row="1" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="192"/>
-        <ComboBox x:Name="ComboBoxClasses" Margin="0,0,407,308" FontSize="18" SelectionChanged="ComboBoxClasses_SelectionChanged" HorizontalAlignment="Right" Width="169" Grid.Row="1" Height="30" VerticalAlignment="Bottom"/>
-        <Label x:Name="LabelModel" Content="Модель: " Margin="0,0,407,345" Grid.Row="1" FontSize="16" HorizontalAlignment="Right" Width="367" Height="33" VerticalAlignment="Bottom"/>
+        <Label Content="Сортировка по классам:" FontSize="16" Margin="27,44,0,330" Grid.Row="1" HorizontalAlignment="Left" Width="192"/>
+        <ComboBox x:Name="ComboBoxClasses" Margin="225,44,406,330" FontSize="18" SelectionChanged="ComboBoxClasses_SelectionChanged" Grid.Row="1"/>
+        <Label x:Name="LabelModel" Content="Модель: " Margin="27,10,0,361" Grid.Row="1" FontSize="16" HorizontalAlignment="Left" Width="367"/>
         <Canvas x:Name="CanvasProgress" Margin="0,137,0,0" Grid.Row="1" Background="#FFCACACA" HorizontalAlignment="Center" Width="300" Height="100" VerticalAlignment="Top" Visibility="Hidden">
             <ProgressBar x:Name="ProgressBarFit" Height="20" Width="268" FontSize="16" HorizontalAlignment="Center" Canvas.Left="16" Canvas.Top="65" VerticalAlignment="Top"/>
             <Label Content="Обучение модели" FontSize="16" HorizontalAlignment="Left" Canvas.Left="74" VerticalAlignment="Center" FontWeight="Bold"/>

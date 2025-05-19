@@ -22,7 +22,7 @@ namespace SimpleNLPApp
 
         private void CopyInfoToList(ComboBox cb)
         {
-            for (int i = 1; i < cb.Items.Count; i++)
+            for (int i = 2; i < cb.Items.Count; i++)
             {
                 ListBoxClasses.Items.Add(cb.Items[i]);
             }

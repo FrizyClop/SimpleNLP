@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimpleNLPApp"
         mc:Ignorable="d"
-        Title="Удаление классов" Height="318" Width="230" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="Удаление классов" Height="327" Width="248" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <ListBox x:Name="ListBoxClasses" Margin="0,33,0,55" SelectionMode="Multiple" FontSize="16"/>
         <Label Content="Доступные классы:" HorizontalAlignment="Left" Margin="10,2,0,0" VerticalAlignment="Top" FontSize="16"/>

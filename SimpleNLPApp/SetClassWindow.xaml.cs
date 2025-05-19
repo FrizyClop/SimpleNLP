@@ -21,7 +21,7 @@ namespace SimpleNLPApp
 
         public void CopyInfoToComboBox(ComboBox cb)
         {
-            for (int i = 1; i < cb.Items.Count; i++)
+            for (int i = 2; i < cb.Items.Count; i++)
             {
                 ComboBoxOnWindow.Items.Add(cb.Items[i]);
             }

@@ -10,12 +10,22 @@ namespace SimpleNLP.Classification
         private readonly double learningRate;
         private readonly int epochs;
         private Dictionary<string, int> _classToIndex; // Словарь для преобразования строк в индексы
-        private List<string> _classes; // Список уникальных классов (для обратного преобразования)
 
         public LogisticRegression(double learningRate = 0.01, int epochs = 1000)
         {
             this.learningRate = learningRate;
             this.epochs = epochs;
+        }
+
+        public LogisticRegression(JsonElement json)
+        {
+            weights = json.GetProperty("Weights").Deserialize<double[][]>();
+            biases = json.GetProperty("Biases").Deserialize<double[]>();
+            learningRate = json.GetProperty("LearningRate").GetDouble();
+            epochs = json.GetProperty("Epochs").GetInt32();
+            _classToIndex = json.GetProperty("ClassToIndex").Deserialize<Dictionary<string, int>>();
+            _classes = json.GetProperty("Classes").Deserialize<List<string>>();
+            _isTrained = json.GetProperty("IsTrained").GetBoolean();
         }
 
         // Softmax: преобразует scores в вероятности [0, 1]
@@ -87,6 +97,7 @@ namespace SimpleNLP.Classification
                     biases[k] -= learningRate * gradientsBiases[k] / nSamples;
                 }
             }
+            _isTrained = true;
         }
 
         // Предсказание вероятностей для каждого класса
@@ -133,7 +144,8 @@ namespace SimpleNLP.Classification
                 LearningRate = learningRate,
                 Epochs = epochs,
                 ClassToIndex = _classToIndex,
-                Classes = _classes
+                Classes = _classes,
+                IsTrained = _isTrained
             };
             return JsonSerializer.Serialize(data);
         }

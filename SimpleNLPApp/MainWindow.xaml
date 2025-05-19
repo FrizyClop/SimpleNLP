@@ -10,7 +10,7 @@
     <Grid Margin="0,0,0,-12">
         <Grid x:Name="MenuNewModel">
             <Label x:Name="LabelName" Content="Название модели:" Margin="10,46,167,0" VerticalAlignment="Top" FontSize="16"/>
-            <TextBox x:Name="TextBoxName" Margin="158,50,24,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="16" Text="Untitled"/>
+            <TextBox x:Name="TextBoxName" Margin="158,50,24,0" VerticalAlignment="Top" FontSize="16" Text="Untitled"/>
             <Label x:Name="LabelType" Content="Тип модели:" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" FontSize="16"/>
             <ComboBox x:Name="ComboBoxType" Margin="115,84,24,0" VerticalAlignment="Top" FontSize="16" SelectionChanged="ComboBoxType_SelectionChanged">
                 <System:String>Наивный Байес</System:String>
@@ -40,7 +40,7 @@
         </Grid>
         <StackPanel x:Name="MainMenu" Margin="0,100,0,85">
             <Button x:Name="ButtonNewModel" FontSize="16" Height="40" Width="300" Content="Новая модель" Click="buttonNewModel_Click"/>
-            <Button x:Name="ButtonOpenModel" FontSize="16" Height="40" Width="300"  Content="Загрузить модель"/>
+            <Button x:Name="ButtonOpenModel" FontSize="16" Height="40" Width="300"  Content="Загрузить модель" Click="ButtonOpenModel_Click"/>
         </StackPanel>
     </Grid>
 </Window>

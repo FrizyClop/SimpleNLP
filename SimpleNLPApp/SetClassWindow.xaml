@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimpleNLPApp"
         mc:Ignorable="d"
-        Title="Назначение класса" Height="111" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" FontSize="16">
+        Title="Назначение класса" Height="125" Width="315" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" FontSize="16">
     <Grid>
         <ComboBox x:Name="ComboBoxOnWindow" HorizontalAlignment="Left" Margin="114,7,0,0" VerticalAlignment="Top" Width="159"/>
         <Label Content="Класс текста:" HorizontalAlignment="Left" Height="38" Margin="10,5,0,0" VerticalAlignment="Top" Width="234"/>

@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using System.IO;
+using System.Text.Json;
+using System.Windows;
 
 namespace SimpleNLPApp
 {
@@ -130,6 +133,26 @@ namespace SimpleNLPApp
         {
             if (LabelEpochs == null) return;
             LabelEpochs.Content = SliderEpochs.Value.ToString();
+        }
+
+        private void ButtonOpenModel_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog{
+                Filter = "SNLP files (*.snlp)|*.snlp",
+                DefaultExt = ".snlp",
+                AddExtension = true
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // Считываем файл
+                string json = File.ReadAllText(openFileDialog.FileName);
+
+                ModelWindow modelWindow = new ModelWindow(openFileDialog.FileName, json);
+                modelWindow.Show();
+                modelWindow.Owner = this;
+                this.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

@@ -19,8 +19,10 @@ namespace SimpleNLPApp
         List<string> classes;
         PredictModel model;
         string name_of_model;
-        PredictModels model_type;
-        TfIdfVectorizer tfIdfVectorizer;
+        static PredictModels model_type;
+        static TfIdfVectorizer tfIdfVectorizer = new TfIdfVectorizer();
+
+        #region Инициализация
 
         public ModelWindow(string name, double alpha)
         {
@@ -40,6 +42,15 @@ namespace SimpleNLPApp
             FirstOpen();
         }
 
+        public ModelWindow(string name, string json_representation)
+        {
+            InitializeComponent();
+            name_of_model = name;
+            model = LoadModelFromJson(json_representation);
+            if (model == null) throw new Exception("Не удалось загрузить модель. Возможно json файл не подходит для данной программы.");
+            LoadOpen();
+        }
+
         private void FirstOpen()
         {
             this.Title = name_of_model;
@@ -47,6 +58,7 @@ namespace SimpleNLPApp
             classes = new List<string>();
             ListBoxTrainTexts.ItemsSource = texts;
             ComboBoxClasses.Items.Add("Все");
+            ComboBoxClasses.Items.Add("-");
             ComboBoxClasses.SelectedIndex = 0;
             switch (model_type) 
             {
@@ -57,8 +69,33 @@ namespace SimpleNLPApp
                     LabelModel.Content += " Логистическая регрессия";
                     break;
             }
-            tfIdfVectorizer = new TfIdfVectorizer();
         }
+
+        private void LoadOpen()
+        {
+            this.Title = name_of_model;
+            texts = new List<Text>();
+            classes = model.Classes;
+            ComboBoxClasses.Items.Add("Все");
+            ComboBoxClasses.Items.Add("-");
+            foreach(string cls in classes)
+            {
+                ComboBoxClasses.Items.Add(cls);
+            }
+            ComboBoxClasses.SelectedIndex = 0;
+            switch (model_type)
+            {
+                case PredictModels.NaiveBayes:
+                    LabelModel.Content += " Наивный Байес";
+                    break;
+                case PredictModels.LogisticRegression:
+                    LabelModel.Content += " Логистическая регрессия";
+                    break;
+            }
+            ModelWasTrained();
+        }
+
+        #endregion
 
         private void Window_Closed(object sender, EventArgs e)
         {
@@ -88,12 +125,31 @@ namespace SimpleNLPApp
             ListBoxTrainTexts.Items.Refresh();
         }
 
+        private void MenuItemAddTextWithout_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog file_dialog = new OpenFileDialog();
+            file_dialog.Filter = "Text|*.txt";
+            file_dialog.Multiselect = true;
+            file_dialog.ShowDialog();
+            if (file_dialog.FileNames == null) return;
+
+            string[] file_paths = file_dialog.FileNames;
+            foreach (string file_path in file_paths)
+            {
+                Text text = GetText(file_path);
+                text.IsPreprocessed = true;
+                texts.Add(text);
+            }
+
+            ListBoxTrainTexts.Items.Refresh();
+        }
+
         private Text GetText(string file_path)
         {
             StreamReader sr = new StreamReader(file_path);
             string text = sr.ReadToEnd();
             sr.Close();
-            return new Text(file_path, text);
+            return new Text(file_path, text, true);
         }
 
         private void MenuItemAddClass_Click(object sender, RoutedEventArgs e)
@@ -118,6 +174,16 @@ namespace SimpleNLPApp
                     ListBoxTrainTexts.Items.Clear();
                 ListBoxTrainTexts.ItemsSource = texts;
                 ListBoxTrainTexts.Items.Refresh();
+            }
+            else if (ComboBoxClasses.SelectedIndex == 1)
+            {
+                ListBoxTrainTexts.ItemsSource = null;
+                ListBoxTrainTexts.Items.Clear();
+                foreach (Text text in texts)
+                {
+                    if (text.ClassOfText == null)
+                        ListBoxTrainTexts.Items.Add(text);
+                }
             }
             else
             {
@@ -161,6 +227,17 @@ namespace SimpleNLPApp
             }
         }
 
+        private void ContextMenuAddDeletePreprocessing_Click(object sender, RoutedEventArgs e)
+        {
+            if (!CheckingForText() || !ChekingForSelectedTexts()) return;
+            foreach (Text item in ListBoxTrainTexts.SelectedItems)
+                if (item.IsPreprocessed)
+                    item.IsPreprocessed = false;
+                else
+                    item.IsPreprocessed = true;
+            ListBoxTrainTexts.Items.Refresh();
+        }
+
         #region Проверки
 
         /// <summary>
@@ -197,7 +274,7 @@ namespace SimpleNLPApp
         /// <returns>Правда если есть хотя бы один класс (кроме Все), ложь в обратном случае</returns>
         private bool ChekingForClass()
         {
-            if (ComboBoxClasses.Items.Count == 1)
+            if (ComboBoxClasses.Items.Count == 2)
             {
                 MessageBox.Show("Добавьте хотя бы один класс!");
                 return false;
@@ -226,6 +303,9 @@ namespace SimpleNLPApp
             if (!ChekingAllTextsWithClasses()) return;
 
             CanvasProgress.Visibility = Visibility.Visible;
+            UpperMenu.IsEnabled = false;
+            ListBoxTrainTexts.IsEnabled = false;
+            ComboBoxClasses.IsEnabled = false;
 
             await Task.Run(() =>
             {
@@ -235,7 +315,10 @@ namespace SimpleNLPApp
                 foreach (Text text in texts)
                 {
                     Dispatcher.Invoke(() => LabelProgress.Content = "Подготовка текста №" + i);
-                    preproccessed_texts.Add(Preprocessor.Preprocess(text.Content, MethodOfOneForm.LEMMATIZATOR));
+                    if (text.IsPreprocessed)
+                        preproccessed_texts.Add(Preprocessor.Preprocess(text.Content, MethodOfOneForm.NONE));
+                    else
+                        preproccessed_texts.Add(Preprocessor.Preprocess(text.Content, MethodOfOneForm.LEMMATIZATOR));
                     Dispatcher.Invoke(() => ProgressBarFit.Value += val_of_one_text);
                     i++;
                 }
@@ -255,11 +338,35 @@ namespace SimpleNLPApp
                 Dispatcher.Invoke(() => LabelProgress.Content = "Обучение модели.");
                 model.Fit(vectors, CreateYforTrain());
                 Dispatcher.Invoke(() => ProgressBarFit.Value += 30);
+
+                // --- Добавленный блок: вывод топ-5 слов для каждого класса ---
+                Dispatcher.Invoke(() => LabelProgress.Content = "Анализ важных слов.");
+                var nbModel = model as NaiveBayesClassifier; // Приведение типа
+                if (nbModel != null)
+                {
+                    if (tfIdfVectorizer != null)
+                    {
+                        foreach (var c in nbModel.Classes)
+                        {
+                            var topFeatures = nbModel.FeatureProbs[c]
+                                .OrderByDescending(kv => kv.Value)
+                                .Take(5)
+                                .Select(kv => $"'{tfIdfVectorizer.GetFeatureName(kv.Key)}' (P={kv.Value:P2})");
+
+                            Dispatcher.Invoke(() =>
+                                MessageBox.Show($"Топ-5 слов для класса '{c}':\n{string.Join("\n", topFeatures)}"));
+                        }
+                    }
+                }
+
             });
 
             CanvasProgress.Visibility= Visibility.Hidden;
             ProgressBarFit.Value = 0;
             MessageBox.Show("Модель обучена!");
+            UpperMenu.IsEnabled = true;
+            ComboBoxClasses.IsEnabled = true;
+            ModelWasTrained();
         }
 
         private List<string> CreateYforTrain()
@@ -274,10 +381,16 @@ namespace SimpleNLPApp
 
         private void MenuItemClassificationOfText_Click(object sender, RoutedEventArgs e)
         {
+            if (!model.IsTrained)
+            {
+                MessageBox.Show("Невозможно провести классификацию текста. Для начала проведите тренировку.");
+                return;
+            }
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Text|*.txt";
             openFileDialog.Multiselect = false;
-            openFileDialog.ShowDialog();
+            if(!(bool)openFileDialog.ShowDialog()) return;
             Text classification_text = GetText(openFileDialog.FileName);
 
             List<string> tokens = Preprocessor.Preprocess(classification_text.Content);
@@ -297,6 +410,11 @@ namespace SimpleNLPApp
 
         private void MenuItemUnloadModel_Click(object sender, RoutedEventArgs e)
         {
+            if (!model.IsTrained)
+            {
+                MessageBox.Show("Модель не может быть выгружена. Для начала проведите тренировку.");
+                return;
+            }
             SaveModel();
         }
 
@@ -305,9 +423,9 @@ namespace SimpleNLPApp
             // Создаем диалог сохранения файла
             var saveFileDialog = new SaveFileDialog
             {
-                Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
-                FileName = name_of_model + ".json",
-                DefaultExt = ".json",
+                Filter = "SNLP files (*.snlp)|*.snlp",
+                FileName = name_of_model + ".snlp",
+                DefaultExt = ".snlp",
                 AddExtension = true
             };
 
@@ -316,7 +434,13 @@ namespace SimpleNLPApp
             {
                 try
                 {
-                    string json = model.GetJsonRepresentation();
+                    var combinedData = new
+                    {
+                        Model = JsonSerializer.Deserialize<JsonElement>(model.GetJsonRepresentation()),
+                        Vectorizer = JsonSerializer.Deserialize<JsonElement>(tfIdfVectorizer.GetJsonRepresentation())
+                    };
+
+                    string json = JsonSerializer.Serialize(combinedData, new JsonSerializerOptions { WriteIndented = true });
 
                     // Сохраняем в файл
                     File.WriteAllText(saveFileDialog.FileName, json);
@@ -330,6 +454,43 @@ namespace SimpleNLPApp
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        public PredictModel LoadModelFromJson(string json)
+        {
+            try
+            {
+                using var document = JsonDocument.Parse(json);
+                var root = document.RootElement;
+                var model_json = root.GetProperty("Model");
+                var vectorizer_json = root.GetProperty("Vectorizer");
+
+                tfIdfVectorizer.LoadFromJson(vectorizer_json);
+
+                if (model_json.GetProperty("Model").GetString() == "NaiveBayes")
+                {
+                    model_type = PredictModels.NaiveBayes;
+                    return new NaiveBayesClassifier(model_json);
+                }
+                else if (model_json.GetProperty("Model").GetString() == "LogisticRegression")
+                {
+                    model_type = PredictModels.LogisticRegression;
+                    return new LogisticRegression(model_json);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии модели:\n{ex.Message}", "Ошибка",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            
+            return null;
+        }
+
+        protected void ModelWasTrained()
+        {
+            ListBoxTrainTexts.IsEnabled = false;
+            MenuItemText.IsEnabled = false;
         }
     }
 }
