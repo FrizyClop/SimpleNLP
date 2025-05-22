@@ -1,31 +1,39 @@
-﻿<Window x:Class="SimpleNLPApp.ModelWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimpleNLPApp"
+        xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Class="SimpleNLPApp.ModelWindow"
         mc:Ignorable="d"
-        Title="ModelWindow" Height="450" Width="800" Closed="Window_Closed">
+        Title="ModelWindow" Height="450" Width="800" Closed="Window_Closed" MinWidth="450" MinHeight="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="15*"/>
             <RowDefinition Height="202*"/>
         </Grid.RowDefinitions>
-        <Menu x:Name="UpperMenu" Margin="0,0,0,2">
+        <Menu x:Name="UpperMenu" Height="28" VerticalAlignment="Top">
             <MenuItem x:Name="MenuItemFile" Header="Файл" FontSize="16">
                 <MenuItem x:Name="MenuItemNewModel" Header="Новая модель" FontSize="16" Click="MenuItemNewModel_Click"/>
+                <MenuItem x:Name="MenuItemOpenModel" Header="Открыть модель" Click="MenuItemOpenModel_Click"/>
+                <MenuItem x:Name="MenuItemCloseModel" Header="Закрыть модель" Click="MenuItemCloseModel_Click"/>
                 <MenuItem x:Name="MenuItemUnloadModel" Header="Выгрузить модель" Click="MenuItemUnloadModel_Click"/>
             </MenuItem>
-            <MenuItem x:Name="MenuItemText" Header="Тренировка" FontSize="16">
+            <MenuItem x:Name="MenuItemClass" Header="Класс" FontSize="16">
                 <MenuItem x:Name="MenuItemAddClass" Header="Добавить класс" FontSize="16" Click="MenuItemAddClass_Click"/>
                 <MenuItem x:Name="MenuItemDeleteClass" Header="Удалить класс" FontSize="16" Click="MenuItemDeleteClass_Click"/>
+            </MenuItem>
+            <MenuItem x:Name="MenuItemText" Header="Текст" FontSize="16">
                 <MenuItem x:Name="MenuItemAddText" Header="Добавить текстовый файл" FontSize="16" Click="MenuItemAddText_Click"/>
                 <MenuItem x:Name="MenuItemAddTextWithout" Header="Добавить текстовый файл без обработки" FontSize="16" Click="MenuItemAddTextWithout_Click"/>
-                <MenuItem x:Name="MenuItemFit" Header="Тренировать модель" FontSize="16" Click="MenuItemFit_Click"/>
+                <MenuItem x:Name="MenuItemPreprocessTexts" Header="Подготовить тексты" FontSize="16" Click="MenuItemPreprocessTexts_Click"/>
             </MenuItem>
+            <MenuItem x:Name="MenuItemFit" Header="Тренировать модель" FontSize="16" Click="MenuItemFit_Click"/>
             <MenuItem x:Name="MenuItemTest" Header="Тест" FontSize="16">
                 <MenuItem x:Name="MenuItemClassificationOfText" Header="Классификация текста" Click="MenuItemClassificationOfText_Click"/>
             </MenuItem>
+            <MenuItem x:Name="MenuItemSettings" Header="Настройки" FontSize="16"/>
+            <MenuItem x:Name="MenuItemHelp" Header="Справка" FontSize="16"/>
         </Menu>
         <ListBox x:Name="ListBoxTrainTexts" FontSize="18" SelectionMode="Multiple" Grid.Row="1" Margin="0,101,0,0">
             <ListBox.ContextMenu>
@@ -36,14 +44,43 @@
                 </ContextMenu>
             </ListBox.ContextMenu>
         </ListBox>
-        <Label Content="Сортировка по классам:" FontSize="16" Margin="27,44,0,330" Grid.Row="1" HorizontalAlignment="Left" Width="192"/>
-        <ComboBox x:Name="ComboBoxClasses" Margin="225,44,406,330" FontSize="18" SelectionChanged="ComboBoxClasses_SelectionChanged" Grid.Row="1"/>
-        <Label x:Name="LabelModel" Content="Модель: " Margin="27,10,0,361" Grid.Row="1" FontSize="16" HorizontalAlignment="Left" Width="367"/>
-        <Canvas x:Name="CanvasProgress" Margin="0,137,0,0" Grid.Row="1" Background="#FFCACACA" HorizontalAlignment="Center" Width="300" Height="100" VerticalAlignment="Top" Visibility="Hidden">
+        <Canvas x:Name="CanvasProgress" Grid.Row="1" Background="#FFCACACA" HorizontalAlignment="Center" Width="300" Height="100" VerticalAlignment="Top" Margin="0,137,0,0" Visibility="Hidden">
             <ProgressBar x:Name="ProgressBarFit" Height="20" Width="268" FontSize="16" HorizontalAlignment="Center" Canvas.Left="16" Canvas.Top="65" VerticalAlignment="Top"/>
             <Label Content="Обучение модели" FontSize="16" HorizontalAlignment="Left" Canvas.Left="74" VerticalAlignment="Center" FontWeight="Bold"/>
             <Label x:Name="LabelProgress" Content="Label" Canvas.Left="16" Canvas.Top="34" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Width="268"/>
         </Canvas>
-
+        <Grid Margin="0,30,0,0" Grid.RowSpan="2" HorizontalAlignment="Left" Width="800" Height="96" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="11*"/>
+                <RowDefinition Height="5*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="293*"/>
+                <ColumnDefinition Width="507*"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Сортировка по классам:" FontSize="16" Margin="0,0,91,7" HorizontalAlignment="Right" Width="192" Height="30" VerticalAlignment="Bottom" Grid.RowSpan="2"/>
+            <ComboBox x:Name="ComboBoxClasses" Margin="0,0,423,4" FontSize="18" SelectionChanged="ComboBoxClasses_SelectionChanged" Grid.ColumnSpan="2" Height="30" VerticalAlignment="Bottom" Grid.RowSpan="2" HorizontalAlignment="Right" Width="174"/>
+            <Label x:Name="LabelModel" Content="Модель: " Margin="0,0,423,31" FontSize="16" HorizontalAlignment="Right" Width="367" Height="33" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+            <Grid x:Name="GridParametersOfModel" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Left" Width="418" Height="96" VerticalAlignment="Bottom" Margin="89,0,0,0">
+                <Canvas x:Name="SVMParameters" Visibility="Hidden">
+                    <Label x:Name="SVMMaxIterations" Content="Max iterations: " FontSize="16" Canvas.Top="26"/>
+                    <Label x:Name="SVMLearningRate" Content="Learning rate: " FontSize="16" Canvas.Top="57" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <Label x:Name="SVMLambda" Content="Lambda: " FontSize="16" Canvas.Top="26" HorizontalAlignment="Left" VerticalAlignment="Center" Canvas.Left="193"/>
+                </Canvas>
+                <Canvas x:Name="LogisticRegressionParameters" Visibility="Hidden">
+                    <Label x:Name="LogisticRegressionLearningRate" Content="Learning rate: " FontSize="16" Canvas.Top="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Label x:Name="LogisticRegressionEpochs" Content="Epochs: " FontSize="16" Canvas.Top="57" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                </Canvas>
+                <Canvas x:Name="NaiveBayesParameters" HorizontalAlignment="Center" Width="418" Height="96" VerticalAlignment="Bottom" Visibility="Hidden">
+                    <Label x:Name="LabelNaiveBayesAlpha" Content="Alpha: " FontSize="16" Canvas.Top="26" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                </Canvas>
+                <Label Content="Параметры" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            </Grid>
+            <Label VerticalAlignment="Top" Margin="10,30,0,0" HorizontalAlignment="Left" FontSize="16" Content="Метод приведения к одной форме:"/>
+            <ComboBox x:Name="ComboBoxOneForm" FontSize="16" HorizontalAlignment="Left" Margin="280,32,0,0" VerticalAlignment="Top" Width="97" SelectedIndex="0" SelectionChanged="ComboBoxOneForm_SelectionChanged" Grid.ColumnSpan="2">
+                <System:String>Лемматизатор</System:String>
+                <System:String>Стеммер</System:String>
+            </ComboBox>
+        </Grid>
     </Grid>
 </Window>

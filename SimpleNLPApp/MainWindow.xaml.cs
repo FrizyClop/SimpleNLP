@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32;
+using SimpleNLP.Classification;
 using System.IO;
-using System.Text.Json;
 using System.Windows;
 
 namespace SimpleNLPApp
@@ -10,9 +10,14 @@ namespace SimpleNLPApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        private List<ModelWindow> child_links;
+
+        public List<ModelWindow> ChildLinks { get {  return child_links; } }
+
         public MainWindow()
         {
             InitializeComponent();
+            child_links = new();
             ChangeInterface(0);
         }
 
@@ -31,17 +36,21 @@ namespace SimpleNLPApp
                     MessageBox.Show("Выберите одну из доступных моделей!");
                     return;
                 case 0:
-                    modelWindow = new ModelWindow(TextBoxName.Text,SliderAlpha.Value);
+                    modelWindow = new ModelWindow(TextBoxName.Text, new NaiveBayesParameters(SliderAlpha.Value));
                     break;
                 case 1:
-                    modelWindow = new ModelWindow(TextBoxName.Text,Convert.ToDouble(ComboBoxLearningRate.Text),Convert.ToInt32(SliderEpochs.Value));
+                    modelWindow = new ModelWindow(TextBoxName.Text, new LogisticRegressionParameters(Math.Round(SliderLRLearningRate.Value,4),Convert.ToInt32(SliderEpochs.Value)));
+                    break;
+                case 2:
+                    modelWindow = new ModelWindow(TextBoxName.Text, new SVMParameters(Convert.ToInt32(SliderSVMMaxIterations.Value), Math.Round(SliderSVMLearningRate.Value,4), Math.Round(SliderSVMLambda.Value,4)));
                     break;
             }
 
-            modelWindow.Show();
-            modelWindow.Owner = this;
+            child_links.Add(modelWindow);
+            modelWindow.MainWindow = this;
             ButtonPrev_Click(sender, e);
             this.Visibility = Visibility.Collapsed;
+            modelWindow.Show();
         }
 
         private void ButtonPrev_Click(object sender, RoutedEventArgs e)
@@ -85,7 +94,7 @@ namespace SimpleNLPApp
             LabelAlpha.Content = Math.Round(SliderAlpha.Value,2).ToString();
         }
 
-        private void ChangeInterface(int n)
+        public void ChangeInterface(int n)
         {
             switch (n)
             {
@@ -109,18 +118,28 @@ namespace SimpleNLPApp
                 Parameters.Visibility = Visibility.Hidden;
                 LogisticRegressionParameters.Visibility = Visibility.Hidden;
                 BayesParameters.Visibility = Visibility.Hidden;
+                SVMParameters.Visibility = Visibility.Hidden;
             }
             else if (ComboBoxType.SelectedIndex == 0)
             {
                 Parameters.Visibility = Visibility.Visible;
                 LogisticRegressionParameters.Visibility = Visibility.Hidden;
                 BayesParameters.Visibility = Visibility.Visible;
+                SVMParameters.Visibility = Visibility.Hidden;
             }
             else if (ComboBoxType.SelectedIndex == 1)
             {
                 Parameters.Visibility = Visibility.Visible;
                 LogisticRegressionParameters.Visibility = Visibility.Visible;
                 BayesParameters.Visibility = Visibility.Hidden;
+                SVMParameters.Visibility = Visibility.Hidden;
+            }
+            else if (ComboBoxType.SelectedIndex == 2)
+            {
+                Parameters.Visibility = Visibility.Visible;
+                LogisticRegressionParameters.Visibility = Visibility.Hidden;
+                BayesParameters.Visibility = Visibility.Hidden;
+                SVMParameters.Visibility = Visibility.Visible;
             }
         }
 
@@ -135,7 +154,7 @@ namespace SimpleNLPApp
             LabelEpochs.Content = SliderEpochs.Value.ToString();
         }
 
-        private void ButtonOpenModel_Click(object sender, RoutedEventArgs e)
+        public void ButtonOpenModel_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog{
                 Filter = "SNLP files (*.snlp)|*.snlp",
@@ -149,9 +168,44 @@ namespace SimpleNLPApp
                 string json = File.ReadAllText(openFileDialog.FileName);
 
                 ModelWindow modelWindow = new ModelWindow(openFileDialog.FileName, json);
-                modelWindow.Show();
-                modelWindow.Owner = this;
+                child_links.Add(modelWindow);
+                modelWindow.MainWindow = this;
                 this.Visibility = Visibility.Collapsed;
+                modelWindow.Show();
+            }
+        }
+
+        private void SliderLRLearningRate_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (LabelLRLearningRate == null) return;
+            LabelLRLearningRate.Content = Math.Round(SliderLRLearningRate.Value,4).ToString();
+        }
+
+        private void SliderSVMMaxIterations_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (LabelSVMMaxIterations == null) return;
+            LabelSVMMaxIterations.Content = SliderSVMMaxIterations.Value.ToString();
+        }
+
+        private void SliderSVMLearningRate_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (LabelSVMLearningRate == null) return;
+            LabelSVMLearningRate.Content = Math.Round(SliderSVMLearningRate.Value,4).ToString();
+        }
+
+        private void SliderSVMLambda_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (LabelSVMLambda == null) return;
+            LabelSVMLambda.Content = Math.Round(SliderSVMLambda.Value,4).ToString();
+        }
+
+        private void MainWindow1_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if(child_links.Count > 0)
+            {
+                e.Cancel = true;
+                this.Hide();
+                ChangeInterface(0);
             }
         }
     }

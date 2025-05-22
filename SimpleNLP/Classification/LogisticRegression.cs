@@ -11,6 +11,9 @@ namespace SimpleNLP.Classification
         private readonly int epochs;
         private Dictionary<string, int> _classToIndex; // Словарь для преобразования строк в индексы
 
+        public double LearningRate { get { return learningRate; } }
+        public int Epochs { get { return epochs; } }
+
         public LogisticRegression(double learningRate = 0.01, int epochs = 1000)
         {
             this.learningRate = learningRate;
@@ -148,6 +151,21 @@ namespace SimpleNLP.Classification
                 IsTrained = _isTrained
             };
             return JsonSerializer.Serialize(data);
+        }
+    }
+
+    public struct LogisticRegressionParameters
+    {
+        private double _learning_rate;
+        private int _epochs;
+
+        public double LearningRate { get { return _learning_rate; } }
+        public int Epochs { get { return _epochs; } }
+
+        public LogisticRegressionParameters(double LearningRate, int Epochs)
+        {
+            _learning_rate = LearningRate;
+            _epochs = Epochs;
         }
     }
 }

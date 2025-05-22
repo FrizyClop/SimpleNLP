@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SimpleNLPApp"
         xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Name="MainWindow1" x:Class="SimpleNLPApp.MainWindow"
         mc:Ignorable="d"
-        Title="Главное меню" Height="367" Width="343" AutomationProperties.IsOffscreenBehavior="Onscreen" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+        Title="Главное меню" Height="367" Width="343" AutomationProperties.IsOffscreenBehavior="Onscreen" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Closing="MainWindow1_Closing">
     <Grid Margin="0,0,0,-12">
         <Grid x:Name="MenuNewModel">
             <Label x:Name="LabelName" Content="Название модели:" Margin="10,46,167,0" VerticalAlignment="Top" FontSize="16"/>
@@ -15,30 +15,39 @@
             <ComboBox x:Name="ComboBoxType" Margin="115,84,24,0" VerticalAlignment="Top" FontSize="16" SelectionChanged="ComboBoxType_SelectionChanged">
                 <System:String>Наивный Байес</System:String>
                 <System:String>Логистическая регрессия</System:String>
+                <System:String>Метод Опорных Векторов (SVM)</System:String>
             </ComboBox>
             <Canvas x:Name="Parameters" Margin="0,122,0,94">
                 <Label Content="Параметры:" Canvas.Left="8" Canvas.Top="2" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <Grid x:Name="BayesParameters" Height="147" Width="343">
+                <Grid x:Name="BayesParameters" Height="147" Width="343" d:IsHidden="True">
                     <Label x:Name="Label" Content="Alpha:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,28,0,0"/>
                     <Slider x:Name="SliderAlpha" Width="215" Value="1" Maximum="2" Height="20" SmallChange="0.01" ValueChanged="SliderAlpha_ValueChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="104,35,0,0" FontSize="16"/>
                     <Label x:Name="LabelAlpha" Content="1.0 " FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="64,28,0,0"/>
                 </Grid>
                 <Grid x:Name="LogisticRegressionParameters" Height="147" Width="343">
-                    <Label Content="Learning rate:" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <ComboBox x:Name="ComboBoxLearningRate" HorizontalAlignment="Left" Margin="121,32,0,0" VerticalAlignment="Top" Width="195" FontSize="16" SelectedIndex="1">
-                        <System:String>0,1</System:String>
-                        <System:String>0,01</System:String>
-                        <System:String>0,001</System:String>
-                    </ComboBox>
-                    <Label Content="Epochs:" HorizontalAlignment="Left" Margin="10,66,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <Slider x:Name="SliderEpochs" HorizontalAlignment="Left" Margin="121,74,0,0" VerticalAlignment="Top" Width="195" FontSize="16" Minimum="10" SmallChange="1" LargeChange="10" Maximum="1000" Value="500" ValueChanged="SliderEpochs_ValueChanged" IsSnapToTickEnabled="True"/>
-                    <Label x:Name="LabelEpochs" Content="500" HorizontalAlignment="Left" Margin="69,66,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Label Content="Learning rate" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Label Content="Epochs" HorizontalAlignment="Left" Margin="10,66,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Slider x:Name="SliderEpochs" HorizontalAlignment="Left" Margin="164,74,0,0" VerticalAlignment="Top" Width="159" FontSize="16" Minimum="10" SmallChange="1" LargeChange="10" Maximum="5000" Value="500" ValueChanged="SliderEpochs_ValueChanged" IsSnapToTickEnabled="True"/>
+                    <Label x:Name="LabelEpochs" Content="500" HorizontalAlignment="Left" Margin="120,66,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Slider x:Name="SliderLRLearningRate" HorizontalAlignment="Left" Margin="164,37,0,0" VerticalAlignment="Top" Width="159" FontSize="16" Minimum="0.0001" Maximum="0.1" SmallChange="0.0001" LargeChange="0.0005" Value="0.01" ValueChanged="SliderLRLearningRate_ValueChanged"/>
+                    <Label x:Name="LabelLRLearningRate" Content="0.01" HorizontalAlignment="Left" Margin="111,30,0,0" VerticalAlignment="Top" FontSize="16"/>
+                </Grid>
+                <Grid x:Name="SVMParameters" Height="147" Width="343" d:IsHidden="True">
+                    <Label Content="Max Iterations" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Slider x:Name="SliderSVMMaxIterations" HorizontalAlignment="Left" Margin="191,38,0,0" VerticalAlignment="Top" Width="133" FontSize="16" Minimum="100" Maximum="10000" SmallChange="1" LargeChange="10" Value="500" ValueChanged="SliderSVMMaxIterations_ValueChanged" IsSnapToTickEnabled="True"/>
+                    <Label Content="Learning Rate" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top" FontSize="16" Width="110"/>
+                    <Slider x:Name="SliderSVMLearningRate" HorizontalAlignment="Left" Margin="191,74,0,0" VerticalAlignment="Top" Width="133" FontSize="16" Minimum="0.0001" Maximum="0.1" SmallChange="0.0001" LargeChange="0.0005" Value="0.01" ValueChanged="SliderSVMLearningRate_ValueChanged"/>
+                    <Label Content="Lambda" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Slider x:Name="SliderSVMLambda" HorizontalAlignment="Left" Margin="191,110,0,0" VerticalAlignment="Top" Width="133" FontSize="16" Minimum="0.0001" Maximum="1" SmallChange="0.0001" Value="0.1" LargeChange="0.001" ValueChanged="SliderSVMLambda_ValueChanged"/>
+                    <Label x:Name="LabelSVMMaxIterations" Content="500" HorizontalAlignment="Left" Margin="128,31,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Label x:Name="LabelSVMLearningRate" Content="0,01" HorizontalAlignment="Left" Margin="128,67,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Label x:Name="LabelSVMLambda" Content="0,1" HorizontalAlignment="Left" Margin="128,103,0,0" VerticalAlignment="Top" FontSize="16"/>
                 </Grid>
             </Canvas>
             <Button x:Name="ButtonPrev" Content="Назад" Margin="25,269,196,0" FontSize="16" Height="47" VerticalAlignment="Top" Click="ButtonPrev_Click"/>
             <Button x:Name="ButtonCreate" Content="Создать" Margin="196,269,25,0" FontSize="16" Height="47" VerticalAlignment="Top" Click="ButtonCreate_Click"/>
         </Grid>
-        <StackPanel x:Name="MainMenu" Margin="0,100,0,85">
+        <StackPanel x:Name="MainMenu" Margin="0,100,0,85" d:IsHidden="True">
             <Button x:Name="ButtonNewModel" FontSize="16" Height="40" Width="300" Content="Новая модель" Click="buttonNewModel_Click"/>
             <Button x:Name="ButtonOpenModel" FontSize="16" Height="40" Width="300"  Content="Загрузить модель" Click="ButtonOpenModel_Click"/>
         </StackPanel>

@@ -19,26 +19,39 @@ namespace SimpleNLPApp
         List<string> classes;
         PredictModel model;
         string name_of_model;
-        static PredictModels model_type;
-        static TfIdfVectorizer tfIdfVectorizer = new TfIdfVectorizer();
+        PredictModels model_type;
+        MethodOfOneForm methodOfOneForm = MethodOfOneForm.LEMMATIZATOR;
+        TfIdfVectorizer tfIdfVectorizer = new TfIdfVectorizer();
+        MainWindow main_window_link;
+
+        public MainWindow MainWindow { get { return main_window_link; } set {  main_window_link = value; } }
 
         #region Инициализация
 
-        public ModelWindow(string name, double alpha)
+        public ModelWindow(string name, NaiveBayesParameters param)
         {
             InitializeComponent();
             name_of_model = name;
-            model = new NaiveBayesClassifier(alpha);
+            model = new NaiveBayesClassifier(param.Alpha);
             model_type = PredictModels.NaiveBayes;
             FirstOpen();
         }
 
-        public ModelWindow(string name, double learning_rate, int epochs)
+        public ModelWindow(string name, LogisticRegressionParameters param)
         {
             InitializeComponent();
             name_of_model = name;
-            model = new LogisticRegression(learning_rate, epochs);
+            model = new LogisticRegression(param.LearningRate, param.Epochs);
             model_type = PredictModels.LogisticRegression;
+            FirstOpen();
+        }
+
+        public ModelWindow(string name, SVMParameters param)
+        {
+            InitializeComponent();
+            name_of_model = name;
+            model = new SVMClassifier(param.MaxIterations, param.LearningRate,param.Lambda);
+            model_type = PredictModels.SVM;
             FirstOpen();
         }
 
@@ -60,15 +73,8 @@ namespace SimpleNLPApp
             ComboBoxClasses.Items.Add("Все");
             ComboBoxClasses.Items.Add("-");
             ComboBoxClasses.SelectedIndex = 0;
-            switch (model_type) 
-            {
-                case PredictModels.NaiveBayes:
-                    LabelModel.Content += " Наивный Байес";
-                    break;
-                case PredictModels.LogisticRegression:
-                    LabelModel.Content += " Логистическая регрессия";
-                    break;
-            }
+            ShowTypeOfModel();
+            ShowParametersOfModel();
         }
 
         private void LoadOpen()
@@ -83,6 +89,13 @@ namespace SimpleNLPApp
                 ComboBoxClasses.Items.Add(cls);
             }
             ComboBoxClasses.SelectedIndex = 0;
+            ShowTypeOfModel();
+            ShowParametersOfModel();
+            ModelWasTrained();
+        }
+
+        private void ShowTypeOfModel()
+        {
             switch (model_type)
             {
                 case PredictModels.NaiveBayes:
@@ -91,21 +104,51 @@ namespace SimpleNLPApp
                 case PredictModels.LogisticRegression:
                     LabelModel.Content += " Логистическая регрессия";
                     break;
+                case PredictModels.SVM:
+                    LabelModel.Content += " Метод опорных векторов (SVM)";
+                    break;
             }
-            ModelWasTrained();
+        }
+
+        private void ShowParametersOfModel()
+        {
+            switch (model_type) 
+            {
+                case PredictModels.NaiveBayes:
+                    NaiveBayesClassifier nb_model = (NaiveBayesClassifier)model;
+                    LabelNaiveBayesAlpha.Content = LabelNaiveBayesAlpha.Content.ToString() + nb_model.Alpha;
+                    NaiveBayesParameters.Visibility = Visibility.Visible;
+                    break;
+                case PredictModels.LogisticRegression:
+                    LogisticRegression lr_model = (LogisticRegression)model;
+                    LogisticRegressionLearningRate.Content = LogisticRegressionLearningRate.Content.ToString() + lr_model.LearningRate;
+                    LogisticRegressionEpochs.Content = LogisticRegressionEpochs.Content.ToString() + lr_model.Epochs;
+                    LogisticRegressionParameters.Visibility = Visibility.Visible;
+                    break;
+                case PredictModels.SVM:
+                    SVMClassifier svm_model = (SVMClassifier)model;
+                    SVMLearningRate.Content = SVMLearningRate.Content.ToString() + svm_model.LearningRate;
+                    SVMMaxIterations.Content = SVMMaxIterations.Content.ToString() + svm_model.MaxIterations;
+                    SVMLambda.Content = SVMLambda.Content.ToString() + svm_model.Lambda;
+                    SVMParameters.Visibility = Visibility.Visible;
+                    break;
+            }
         }
 
         #endregion
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            if(Owner.OwnedWindows.Count == 0)
-            Owner.Visibility = Visibility.Visible;
+            main_window_link.ChildLinks.Remove(this);
+            if(main_window_link.ChildLinks.Count == 0)
+            main_window_link.Visibility = Visibility.Visible;
         }
 
         private void MenuItemNewModel_Click(object sender, RoutedEventArgs e)
         {
-            //добавить реализацию
+            main_window_link.Visibility = Visibility.Visible;
+            main_window_link.Activate();
+            main_window_link.ChangeInterface(1);
         }
 
         private void MenuItemAddText_Click(object sender, RoutedEventArgs e)
@@ -121,7 +164,6 @@ namespace SimpleNLPApp
             {
                 texts.Add(GetText(file_path));
             }
-
             ListBoxTrainTexts.Items.Refresh();
         }
 
@@ -318,7 +360,7 @@ namespace SimpleNLPApp
                     if (text.IsPreprocessed)
                         preproccessed_texts.Add(Preprocessor.Preprocess(text.Content, MethodOfOneForm.NONE));
                     else
-                        preproccessed_texts.Add(Preprocessor.Preprocess(text.Content, MethodOfOneForm.LEMMATIZATOR));
+                        preproccessed_texts.Add(Preprocessor.Preprocess(text.Content, methodOfOneForm));
                     Dispatcher.Invoke(() => ProgressBarFit.Value += val_of_one_text);
                     i++;
                 }
@@ -477,6 +519,11 @@ namespace SimpleNLPApp
                     model_type = PredictModels.LogisticRegression;
                     return new LogisticRegression(model_json);
                 }
+                else if (model_json.GetProperty("Model").GetString() == "SVM")
+                {
+                    model_type = PredictModels.SVM;
+                    return new SVMClassifier(model_json);
+                }
             }
             catch (Exception ex)
             {
@@ -490,7 +537,42 @@ namespace SimpleNLPApp
         protected void ModelWasTrained()
         {
             ListBoxTrainTexts.IsEnabled = false;
-            MenuItemText.IsEnabled = false;
+            MenuItemClass.IsEnabled = false;
+            MenuItemAddText.IsEnabled = false;
+            MenuItemAddTextWithout.IsEnabled = false;
+            MenuItemFit.IsEnabled = false;
+        }
+
+        private void MenuItemPreprocessTexts_Click(object sender, RoutedEventArgs e)
+        {
+            PreprocessingTextWindow ptw = new PreprocessingTextWindow();
+            ptw.ShowDialog();
+        }
+
+        private void ComboBoxOneForm_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (ComboBoxOneForm.SelectedIndex)
+            {
+                case 0:
+                    methodOfOneForm = MethodOfOneForm.LEMMATIZATOR;
+                    break;
+                case 1:
+                    methodOfOneForm = MethodOfOneForm.STEMMER;
+                    break;
+                default:
+                    MessageBox.Show("Выберите один из предложенных методов приведения слов к одной форме.");
+                    return;
+            }
+        }
+
+        private void MenuItemCloseModel_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void MenuItemOpenModel_Click(object sender, RoutedEventArgs e)
+        {
+            main_window_link.ButtonOpenModel_Click(sender,e);
         }
     }
 }

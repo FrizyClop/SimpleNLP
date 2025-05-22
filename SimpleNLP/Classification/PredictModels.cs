@@ -9,6 +9,7 @@ namespace SimpleNLP.Classification
     public enum PredictModels
     {
         NaiveBayes,
-        LogisticRegression
+        LogisticRegression,
+        SVM
     }
 }

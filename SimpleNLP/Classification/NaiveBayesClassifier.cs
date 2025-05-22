@@ -183,4 +183,16 @@ namespace SimpleNLP.Classification
             return JsonSerializer.Serialize(data);
         }
     }
+
+    public struct NaiveBayesParameters
+    {
+        private double _alpha;
+
+        public double Alpha { get { return _alpha;  } }
+
+        public NaiveBayesParameters(double Alpha)
+        {
+            _alpha = Alpha;
+        }
+    }
 }

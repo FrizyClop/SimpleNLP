@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace SimpleNLP.Classification
+﻿namespace SimpleNLP.Classification
 {
     public abstract class PredictModel
     {
