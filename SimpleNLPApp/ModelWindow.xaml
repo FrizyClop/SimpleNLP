@@ -32,7 +32,9 @@
             <MenuItem x:Name="MenuItemTest" Header="Тест" FontSize="16">
                 <MenuItem x:Name="MenuItemClassificationOfText" Header="Классификация текста" Click="MenuItemClassificationOfText_Click"/>
             </MenuItem>
-            <MenuItem x:Name="MenuItemSettings" Header="Настройки" FontSize="16"/>
+            <MenuItem x:Name="MenuItemInternet" Header="Сеть" FontSize="16">
+                <MenuItem x:Name="MenuItemDownloadNews" Header="Загрузить новости" FontSize="16" Click="MenuItemDownloadNews_Click"/>
+            </MenuItem>
             <MenuItem x:Name="MenuItemHelp" Header="Справка" FontSize="16"/>
         </Menu>
         <ListBox x:Name="ListBoxTrainTexts" FontSize="18" SelectionMode="Multiple" Grid.Row="1" Margin="0,101,0,0">

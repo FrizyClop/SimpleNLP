@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SimpleNLPApp"
         xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Name="MainWindow1" x:Class="SimpleNLPApp.MainWindow"
         mc:Ignorable="d"
-        Title="Главное меню" Height="367" Width="343" AutomationProperties.IsOffscreenBehavior="Onscreen" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Closing="MainWindow1_Closing">
+        Title="SimpleNLP" Height="367" Width="343" AutomationProperties.IsOffscreenBehavior="Onscreen" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Closing="MainWindow1_Closing">
     <Grid Margin="0,0,0,-12">
         <Grid x:Name="MenuNewModel">
             <Label x:Name="LabelName" Content="Название модели:" Margin="10,46,167,0" VerticalAlignment="Top" FontSize="16"/>
@@ -46,10 +46,13 @@
             </Canvas>
             <Button x:Name="ButtonPrev" Content="Назад" Margin="25,269,196,0" FontSize="16" Height="47" VerticalAlignment="Top" Click="ButtonPrev_Click"/>
             <Button x:Name="ButtonCreate" Content="Создать" Margin="196,269,25,0" FontSize="16" Height="47" VerticalAlignment="Top" Click="ButtonCreate_Click"/>
+            <Label x:Name="NewModelLabel" Content="Создание новой модели" FontSize="24" HorizontalAlignment="Center" Margin="0,4,0,0" VerticalAlignment="Top" FontFamily="Bahnschrift"/>
         </Grid>
-        <StackPanel x:Name="MainMenu" Margin="0,100,0,85" d:IsHidden="True">
+        <StackPanel x:Name="MainMenu" Margin="0,155,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" d:IsHidden="True">
             <Button x:Name="ButtonNewModel" FontSize="16" Height="40" Width="300" Content="Новая модель" Click="buttonNewModel_Click"/>
             <Button x:Name="ButtonOpenModel" FontSize="16" Height="40" Width="300"  Content="Загрузить модель" Click="ButtonOpenModel_Click"/>
+            <Button x:Name="ButtonPreprocessingTexts" FontSize="16" Height="40" Width="300"  Content="Подготовить тексты" Click="ButtonPreprocessingTexts_Click"/>
         </StackPanel>
+        <Label x:Name="MainLogo" Content="SimpleNLP" FontSize="48" HorizontalAlignment="Center" Margin="0,40,0,0" VerticalAlignment="Top" FontFamily="Bahnschrift" d:IsHidden="True"/>
     </Grid>
 </Window>

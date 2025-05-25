@@ -101,11 +101,13 @@ namespace SimpleNLPApp
                 case 0:
                     TextBoxName.Text = "Untitled";
                     MainMenu.Visibility = Visibility.Visible;
+                    MainLogo.Visibility = Visibility.Visible;
                     MenuNewModel.Visibility = Visibility.Hidden;
                     break;
                 case 1:
                     MenuNewModel.Visibility = Visibility.Visible;
                     MainMenu.Visibility = Visibility.Hidden;
+                    MainLogo.Visibility = Visibility.Hidden;
                     ShowParameters();
                     break;
             }
@@ -207,6 +209,12 @@ namespace SimpleNLPApp
                 this.Hide();
                 ChangeInterface(0);
             }
+        }
+
+        private void ButtonPreprocessingTexts_Click(object sender, RoutedEventArgs e)
+        {
+            PreprocessingTextWindow ptw = new PreprocessingTextWindow();
+            ptw.ShowDialog();
         }
     }
 }

@@ -7,6 +7,7 @@ using SimpleNLP.Classification;
 using SimpleNLP.Preprocessing;
 using SimpleNLP.Transformation;
 using System.Text.Json;
+using System.Net.NetworkInformation;
 
 namespace SimpleNLPApp
 {
@@ -337,6 +338,23 @@ namespace SimpleNLPApp
             return true;
         }
 
+        public static bool CheckInternetConnection()
+        {
+            try
+            {
+                // Проверяем доступность популярного стабильного ресурса (Google DNS)
+                using (var ping = new Ping())
+                {
+                    var reply = ping.Send("8.8.8.8", 3000); // 3 секунды таймаут
+                    return reply?.Status == IPStatus.Success;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         #endregion
 
         private async void MenuItemFit_Click(object sender, RoutedEventArgs e)
@@ -573,6 +591,17 @@ namespace SimpleNLPApp
         private void MenuItemOpenModel_Click(object sender, RoutedEventArgs e)
         {
             main_window_link.ButtonOpenModel_Click(sender,e);
+        }
+
+        private void MenuItemDownloadNews_Click(object sender, RoutedEventArgs e)
+        {
+            if (!CheckInternetConnection())
+            {
+                MessageBox.Show("Для использования данной функции требуется интернет-соединение.");
+                return;
+            }
+            NewsWindow nw = new NewsWindow();
+            nw.ShowDialog();
         }
     }
 }
