@@ -16,21 +16,22 @@
                 <System:String>Наивный Байес</System:String>
                 <System:String>Логистическая регрессия</System:String>
                 <System:String>Метод Опорных Векторов (SVM)</System:String>
+                <System:String>KNN классификатор</System:String>
             </ComboBox>
             <Canvas x:Name="Parameters" Margin="0,122,0,94">
                 <Label Content="Параметры:" Canvas.Left="8" Canvas.Top="2" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                 <Grid x:Name="BayesParameters" Height="147" Width="343" d:IsHidden="True">
                     <Label x:Name="Label" Content="Alpha:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,28,0,0"/>
                     <Slider x:Name="SliderAlpha" Width="215" Value="1" Maximum="2" Height="20" SmallChange="0.01" ValueChanged="SliderAlpha_ValueChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="104,35,0,0" FontSize="16"/>
-                    <Label x:Name="LabelAlpha" Content="1.0 " FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="64,28,0,0"/>
+                    <TextBox x:Name="TextBoxBayesAlpha" FontSize="16" HorizontalAlignment="Left" Margin="65,33,0,0" TextWrapping="NoWrap" Text="0,1" VerticalAlignment="Top" Width="34" LostFocus="TextBoxBayesAlpha_LostFocus" />
                 </Grid>
-                <Grid x:Name="LogisticRegressionParameters" Height="147" Width="343">
+                <Grid x:Name="LogisticRegressionParameters" Height="147" Width="343" d:IsHidden="True">
                     <Label Content="Learning rate" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" FontSize="16"/>
                     <Label Content="Epochs" HorizontalAlignment="Left" Margin="10,66,0,0" VerticalAlignment="Top" FontSize="16"/>
                     <Slider x:Name="SliderEpochs" HorizontalAlignment="Left" Margin="164,74,0,0" VerticalAlignment="Top" Width="159" FontSize="16" Minimum="10" SmallChange="1" LargeChange="10" Maximum="5000" Value="500" ValueChanged="SliderEpochs_ValueChanged" IsSnapToTickEnabled="True"/>
-                    <Label x:Name="LabelEpochs" Content="500" HorizontalAlignment="Left" Margin="120,66,0,0" VerticalAlignment="Top" FontSize="16"/>
                     <Slider x:Name="SliderLRLearningRate" HorizontalAlignment="Left" Margin="164,37,0,0" VerticalAlignment="Top" Width="159" FontSize="16" Minimum="0.0001" Maximum="0.1" SmallChange="0.0001" LargeChange="0.0005" Value="0.01" ValueChanged="SliderLRLearningRate_ValueChanged"/>
-                    <Label x:Name="LabelLRLearningRate" Content="0.01" HorizontalAlignment="Left" Margin="111,30,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <TextBox x:Name="TextBoxLRLearningRate" FontSize="16" HorizontalAlignment="Left" Margin="113,34,0,0" TextWrapping="NoWrap" Text="0,01" VerticalAlignment="Top" Width="51" LostFocus="TextBoxLRLearningRate_LostFocus"/>
+                    <TextBox x:Name="TextBoxLREpochs" FontSize="16" HorizontalAlignment="Left" Margin="113,71,0,0" TextWrapping="NoWrap" Text="500" VerticalAlignment="Top" Width="51" LostFocus="TextBoxLREpochs_LostFocus"/>
                 </Grid>
                 <Grid x:Name="SVMParameters" Height="147" Width="343" d:IsHidden="True">
                     <Label Content="Max Iterations" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" FontSize="16"/>
@@ -39,9 +40,14 @@
                     <Slider x:Name="SliderSVMLearningRate" HorizontalAlignment="Left" Margin="191,74,0,0" VerticalAlignment="Top" Width="133" FontSize="16" Minimum="0.0001" Maximum="0.1" SmallChange="0.0001" LargeChange="0.0005" Value="0.01" ValueChanged="SliderSVMLearningRate_ValueChanged"/>
                     <Label Content="Lambda" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top" FontSize="16"/>
                     <Slider x:Name="SliderSVMLambda" HorizontalAlignment="Left" Margin="191,110,0,0" VerticalAlignment="Top" Width="133" FontSize="16" Minimum="0.0001" Maximum="1" SmallChange="0.0001" Value="0.1" LargeChange="0.001" ValueChanged="SliderSVMLambda_ValueChanged"/>
-                    <Label x:Name="LabelSVMMaxIterations" Content="500" HorizontalAlignment="Left" Margin="128,31,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <Label x:Name="LabelSVMLearningRate" Content="0,01" HorizontalAlignment="Left" Margin="128,67,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <Label x:Name="LabelSVMLambda" Content="0,1" HorizontalAlignment="Left" Margin="128,103,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <TextBox x:Name="TextBoxSVMMaxIterations" FontSize="16" HorizontalAlignment="Left" Margin="125,35,0,0" TextWrapping="NoWrap" Text="500" VerticalAlignment="Top" Width="61" LostFocus="TextBoxSVMMaxIterations_LostFocus"/>
+                    <TextBox x:Name="TextBoxSVMLearningRate" FontSize="16" HorizontalAlignment="Left" Margin="125,71,0,0" TextWrapping="NoWrap" Text="0,01" VerticalAlignment="Top" Width="61" LostFocus="TextBoxSVMLearningRate_LostFocus"/>
+                    <TextBox x:Name="TextBoxSVMLambda" FontSize="16" HorizontalAlignment="Left" Margin="125,107,0,0" TextWrapping="NoWrap" Text="0,1" VerticalAlignment="Top" Width="61" LostFocus="TextBoxSVMLambda_LostFocus"/>
+                </Grid>
+                <Grid x:Name="KNNParameters" Height="147" Width="343">
+                    <Label Content="k:" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Slider x:Name="SliderKNNk" HorizontalAlignment="Left" Margin="79,38,0,0" VerticalAlignment="Top" Width="245" FontSize="16" Minimum="1" Maximum="15" SmallChange="1" LargeChange="10" Value="500" ValueChanged="SliderKNNk_ValueChanged" IsSnapToTickEnabled="True"/>
+                    <TextBox x:Name="TextBoxKNNk" FontSize="16" HorizontalAlignment="Left" Margin="38,35,0,0" TextWrapping="NoWrap" Text="3" VerticalAlignment="Top" Width="36" LostFocus="TextBoxKNNk_LostFocus"/>
                 </Grid>
             </Canvas>
             <Button x:Name="ButtonPrev" Content="Назад" Margin="25,269,196,0" FontSize="16" Height="47" VerticalAlignment="Top" Click="ButtonPrev_Click"/>
@@ -54,5 +60,6 @@
             <Button x:Name="ButtonPreprocessingTexts" FontSize="16" Height="40" Width="300"  Content="Подготовить тексты" Click="ButtonPreprocessingTexts_Click"/>
         </StackPanel>
         <Label x:Name="MainLogo" Content="SimpleNLP" FontSize="48" HorizontalAlignment="Center" Margin="0,40,0,0" VerticalAlignment="Top" FontFamily="Bahnschrift" d:IsHidden="True"/>
+        <Button x:Name="HelpButton" Content=" ? " Click="HelpButton_Click" FontSize="16" HorizontalAlignment="Left" Margin="300,290,0,0" VerticalAlignment="Top" d:IsHidden="True"/>
     </Grid>
 </Window>

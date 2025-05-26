@@ -34,5 +34,53 @@ namespace SimpleNLPApp.Properties {
                 this["StringSavePreprocessedTexts"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StringSaveNews {
+            get {
+                return ((string)(this["StringSaveNews"]));
+            }
+            set {
+                this["StringSaveNews"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StringLastPathToModels {
+            get {
+                return ((string)(this["StringLastPathToModels"]));
+            }
+            set {
+                this["StringLastPathToModels"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StringLastPathToTexts {
+            get {
+                return ((string)(this["StringLastPathToTexts"]));
+            }
+            set {
+                this["StringLastPathToTexts"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StringLastPathToTextsWithout {
+            get {
+                return ((string)(this["StringLastPathToTextsWithout"]));
+            }
+            set {
+                this["StringLastPathToTextsWithout"] = value;
+            }
+        }
     }
 }

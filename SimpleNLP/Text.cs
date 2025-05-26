@@ -47,5 +47,19 @@
             else
                 return "\n Требуется предобработка: Да";
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            Text other = (Text)obj;
+            return string.Equals(this.Title, other.Title, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override int GetHashCode()
+        {
+            return Title != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Title) : 0;
+        }
     }
 }

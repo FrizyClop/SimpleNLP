@@ -60,56 +60,81 @@ public class NewsParser
         if (!Sections.ContainsKey(sectionName))
             throw new ArgumentException($"Раздел '{sectionName}' не найден.");
 
-        var baseSectionUrl = new Uri(new Uri(BaseUrl), Sections[sectionName]).ToString();
+        var baseSectionUrl = BaseUrl + Sections[sectionName];
         var newsList = new List<NewsItem>();
+        var visitedUrls = new HashSet<string>();
         int currentPage = 0;
+
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
         while (newsList.Count < count)
         {
             string pageUrl = currentPage == 0 ? baseSectionUrl : $"{baseSectionUrl}?page={currentPage + 1}";
             var response = await _httpClient.GetAsync(pageUrl);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode) break;
 
             var stream = await response.Content.ReadAsStreamAsync();
             var doc = new HtmlDocument();
             doc.Load(stream, Encoding.GetEncoding("windows-1251"));
 
-            var newsNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'timeline__group') or contains(@class, 'timeline__text')]");
-            if (newsNodes == null || newsNodes.Count == 0)
-                break;
+            // timeline__group содержит вложенные div с новостями, timeline__text — одиночные
+            var groupNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'timeline__group')]");
+            var textNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'timeline__text')]");
+            var allNewsDivs = new List<HtmlNode>();
 
-            foreach (var node in newsNodes)
+            if (groupNodes != null)
+            {
+                foreach (var group in groupNodes)
+                {
+                    var items = group.SelectNodes("./div");
+                    if (items != null) allNewsDivs.AddRange(items);
+                }
+            }
+
+            if (textNodes != null)
+            {
+                allNewsDivs.AddRange(textNodes);
+            }
+
+            if (allNewsDivs.Count == 0) break;
+
+            foreach (var block in allNewsDivs)
             {
                 if (newsList.Count >= count)
                     break;
 
-                var titleNode = node.SelectSingleNode(".//h3");
-                var timeNode = node.SelectSingleNode(".//time");
-                var linkNode = node.SelectSingleNode(".//a[h3]");
+                var linkNode = block.SelectSingleNode(".//a");
+                var timeNode = block.SelectSingleNode(".//time");
 
-                if (titleNode != null && timeNode != null && linkNode != null)
+                if (linkNode == null || timeNode == null)
+                    continue;
+
+                string href = linkNode.GetAttributeValue("href", "").Trim();
+                if (!href.StartsWith("/")) continue;
+
+                string fullUrl = new Uri(new Uri(BaseUrl), href).ToString();
+                if (visitedUrls.Contains(fullUrl)) continue;
+                visitedUrls.Add(fullUrl);
+
+                string title = linkNode.GetAttributeValue("title", "")?.Trim();
+                if (string.IsNullOrWhiteSpace(title))
+                    title = HtmlEntity.DeEntitize(linkNode.InnerText.Trim());
+
+                string datetime = timeNode.GetAttributeValue("datetime", "");
+                string formattedDate = DateTime.TryParse(datetime, out var dt)
+                    ? dt.ToString("dd.MM.yyyy HH:mm")
+                    : datetime;
+
+                var full = await GetNewsDetailsAsync(fullUrl);
+                if (string.IsNullOrWhiteSpace(full.Body)) continue;
+
+                newsList.Add(new NewsItem
                 {
-                    string datetimeAttr = timeNode.GetAttributeValue("datetime", "").Trim();
-                    string formattedDate = datetimeAttr;
-                    if (DateTime.TryParse(datetimeAttr, out var dt))
-                        formattedDate = dt.ToString("dd.MM.yyyy HH:mm");
-
-                    var href = linkNode.GetAttributeValue("href", string.Empty).Trim();
-                    var newsUrl = new Uri(new Uri(BaseUrl), href).ToString();
-
-                    var full = await GetNewsDetailsAsync(newsUrl);
-
-                    if (string.IsNullOrWhiteSpace(full.Body))
-                        continue;
-
-                    newsList.Add(new NewsItem
-                    {
-                        Title = HtmlEntity.DeEntitize(titleNode.InnerText.Trim()),
-                        Url = newsUrl,
-                        Date = formattedDate,
-                        Body = full.Body
-                    });
-                }
+                    Title = title,
+                    Url = fullUrl,
+                    Date = formattedDate,
+                    Body = full.Body
+                });
             }
 
             currentPage++;

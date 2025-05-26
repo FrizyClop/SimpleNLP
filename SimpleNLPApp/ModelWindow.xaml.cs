@@ -56,6 +56,15 @@ namespace SimpleNLPApp
             FirstOpen();
         }
 
+        public ModelWindow(string name, KNNParameters param)
+        {
+            InitializeComponent();
+            name_of_model = name;
+            model = new KNNClassifier(param.K);
+            model_type = PredictModels.KNN;
+            FirstOpen();
+        }
+
         public ModelWindow(string name, string json_representation)
         {
             InitializeComponent();
@@ -71,9 +80,7 @@ namespace SimpleNLPApp
             texts = new List<Text>();
             classes = new List<string>();
             ListBoxTrainTexts.ItemsSource = texts;
-            ComboBoxClasses.Items.Add("Все");
-            ComboBoxClasses.Items.Add("-");
-            ComboBoxClasses.SelectedIndex = 0;
+            LoadClassesIntoComboBox();
             ShowTypeOfModel();
             ShowParametersOfModel();
         }
@@ -83,13 +90,7 @@ namespace SimpleNLPApp
             this.Title = name_of_model;
             texts = new List<Text>();
             classes = model.Classes;
-            ComboBoxClasses.Items.Add("Все");
-            ComboBoxClasses.Items.Add("-");
-            foreach(string cls in classes)
-            {
-                ComboBoxClasses.Items.Add(cls);
-            }
-            ComboBoxClasses.SelectedIndex = 0;
+            LoadClassesIntoComboBox();
             ShowTypeOfModel();
             ShowParametersOfModel();
             ModelWasTrained();
@@ -107,6 +108,9 @@ namespace SimpleNLPApp
                     break;
                 case PredictModels.SVM:
                     LabelModel.Content += " Метод опорных векторов (SVM)";
+                    break;
+                case PredictModels.KNN:
+                    LabelModel.Content += " KNN (k-ближайших соседей)";
                     break;
             }
         }
@@ -133,7 +137,23 @@ namespace SimpleNLPApp
                     SVMLambda.Content = SVMLambda.Content.ToString() + svm_model.Lambda;
                     SVMParameters.Visibility = Visibility.Visible;
                     break;
+                case PredictModels.KNN:
+                    KNNClassifier knn_model = (KNNClassifier)model;
+                    LabelKNNk.Content = LabelKNNk.Content.ToString() + knn_model.K;
+                    KNNParameters.Visibility = Visibility.Visible;
+                    break;
             }
+        }
+
+        private void LoadClassesIntoComboBox()
+        {
+            ComboBoxClasses.Items.Add("Все");
+            ComboBoxClasses.Items.Add("-");
+            foreach (string cls in classes)
+            {
+                ComboBoxClasses.Items.Add(cls);
+            }
+            ComboBoxClasses.SelectedIndex = 0;
         }
 
         #endregion
@@ -157,8 +177,13 @@ namespace SimpleNLPApp
             OpenFileDialog file_dialog = new OpenFileDialog();
             file_dialog.Filter = "Text|*.txt";
             file_dialog.Multiselect = true;
+            file_dialog.InitialDirectory = Properties.Settings.Default.StringLastPathToTexts;
             file_dialog.ShowDialog();
             if (file_dialog.FileNames == null) return;
+
+            // Сохраняем путь к папке, в которой была выбрана модель
+            Properties.Settings.Default.StringLastPathToTexts = Path.GetDirectoryName(file_dialog.FileName);
+            Properties.Settings.Default.Save(); // Сохраняем настройки
 
             string[] file_paths = file_dialog.FileNames;
             foreach(string file_path in file_paths)
@@ -173,8 +198,13 @@ namespace SimpleNLPApp
             OpenFileDialog file_dialog = new OpenFileDialog();
             file_dialog.Filter = "Text|*.txt";
             file_dialog.Multiselect = true;
+            file_dialog.InitialDirectory = Properties.Settings.Default.StringLastPathToTextsWithout;
             file_dialog.ShowDialog();
             if (file_dialog.FileNames == null) return;
+
+            // Сохраняем путь к папке, в которой была выбрана модель
+            Properties.Settings.Default.StringLastPathToTextsWithout = Path.GetDirectoryName(file_dialog.FileName);
+            Properties.Settings.Default.Save(); // Сохраняем настройки
 
             string[] file_paths = file_dialog.FileNames;
             foreach (string file_path in file_paths)
@@ -187,7 +217,7 @@ namespace SimpleNLPApp
             ListBoxTrainTexts.Items.Refresh();
         }
 
-        private Text GetText(string file_path)
+        public Text GetText(string file_path)
         {
             StreamReader sr = new StreamReader(file_path);
             string text = sr.ReadToEnd();
@@ -213,8 +243,12 @@ namespace SimpleNLPApp
         {
             if (ComboBoxClasses.SelectedIndex == 0)
             {
+
                 if (ListBoxTrainTexts.Items.Count > 0)
+                {
+                    ListBoxTrainTexts.ItemsSource = null;
                     ListBoxTrainTexts.Items.Clear();
+                }
                 ListBoxTrainTexts.ItemsSource = texts;
                 ListBoxTrainTexts.Items.Refresh();
             }
@@ -227,6 +261,10 @@ namespace SimpleNLPApp
                     if (text.ClassOfText == null)
                         ListBoxTrainTexts.Items.Add(text);
                 }
+            }
+            else if (ComboBoxClasses.SelectedIndex == -1)
+            {
+                return;
             }
             else
             {
@@ -398,27 +436,6 @@ namespace SimpleNLPApp
                 Dispatcher.Invoke(() => LabelProgress.Content = "Обучение модели.");
                 model.Fit(vectors, CreateYforTrain());
                 Dispatcher.Invoke(() => ProgressBarFit.Value += 30);
-
-                // --- Добавленный блок: вывод топ-5 слов для каждого класса ---
-                Dispatcher.Invoke(() => LabelProgress.Content = "Анализ важных слов.");
-                var nbModel = model as NaiveBayesClassifier; // Приведение типа
-                if (nbModel != null)
-                {
-                    if (tfIdfVectorizer != null)
-                    {
-                        foreach (var c in nbModel.Classes)
-                        {
-                            var topFeatures = nbModel.FeatureProbs[c]
-                                .OrderByDescending(kv => kv.Value)
-                                .Take(5)
-                                .Select(kv => $"'{tfIdfVectorizer.GetFeatureName(kv.Key)}' (P={kv.Value:P2})");
-
-                            Dispatcher.Invoke(() =>
-                                MessageBox.Show($"Топ-5 слов для класса '{c}':\n{string.Join("\n", topFeatures)}"));
-                        }
-                    }
-                }
-
             });
 
             CanvasProgress.Visibility= Visibility.Hidden;
@@ -443,29 +460,34 @@ namespace SimpleNLPApp
         {
             if (!model.IsTrained)
             {
-                MessageBox.Show("Невозможно провести классификацию текста. Для начала проведите тренировку.");
+                MessageBox.Show("Невозможно провести классификацию. Сначала обучите модель.");
                 return;
             }
 
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Text|*.txt";
-            openFileDialog.Multiselect = false;
-            if(!(bool)openFileDialog.ShowDialog()) return;
-            Text classification_text = GetText(openFileDialog.FileName);
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Text files|*.txt",
+                Multiselect = true
+            };
 
-            List<string> tokens = Preprocessor.Preprocess(classification_text.Content);
+            if (!(bool)openFileDialog.ShowDialog()) return;
 
-            double[] vector = tfIdfVectorizer.Vectorize(tokens);
+            List<TextEvaluationViewModel> items = new List<TextEvaluationViewModel>();
 
-            string class_of_text = model.Predict(vector);
+            foreach (var file in openFileDialog.FileNames)
+            {
+                var text = GetText(file);
+                items.Add(new TextEvaluationViewModel
+                {
+                    Title = text.Title,
+                    Content = text.Content,
+                    TrueClass = null,
+                    PredictedClass = null
+                });
+            }
 
-            Dictionary<string,double> probabilities = model.PredictProbabilities(vector);
-
-            string result = "Класс загруженного текста: " + class_of_text;
-            foreach (string _class in classes)
-                result += $"\n Вероятность {_class}: {probabilities[_class]}";
-
-            MessageBox.Show(result);
+            var window = new ClassificationTextsWindow(items, model, tfIdfVectorizer, classes);
+            window.ShowDialog();
         }
 
         private void MenuItemUnloadModel_Click(object sender, RoutedEventArgs e)
@@ -542,6 +564,11 @@ namespace SimpleNLPApp
                     model_type = PredictModels.SVM;
                     return new SVMClassifier(model_json);
                 }
+                else if (model_json.GetProperty("Model").GetString() == "KNN")
+                {
+                    model_type = PredictModels.KNN;
+                    return new KNNClassifier(model_json);
+                }
             }
             catch (Exception ex)
             {
@@ -600,8 +627,26 @@ namespace SimpleNLPApp
                 MessageBox.Show("Для использования данной функции требуется интернет-соединение.");
                 return;
             }
-            NewsWindow nw = new NewsWindow();
+            NewsWindow nw = new NewsWindow(classes,texts,model);
             nw.ShowDialog();
+            ComboBoxClasses.Items.Clear();
+            LoadClassesIntoComboBox();
+            ListBoxTrainTexts.Items.Refresh();
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            ListBoxTrainTexts.SelectAll();
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ListBoxTrainTexts.UnselectAll();
+        }
+
+        private void MenuItemHelp_Click(object sender, RoutedEventArgs e)
+        {
+            HelpWindow.ShowSingleton();
         }
     }
 }

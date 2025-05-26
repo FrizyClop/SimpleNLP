@@ -25,16 +25,25 @@
         </DataTemplate>
     </Window.Resources>
 
-    <Grid>
+    <Grid HorizontalAlignment="Center" Width="402" Height="434" VerticalAlignment="Top">
         <Button x:Name="ButtonDownloadNews" Content="Загрузить новости" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Width="170" Click="ButtonDownloadNews_Click" Margin="0,383,0,0"/>
-        <ScrollViewer Margin="0,123,0,0" HorizontalAlignment="Center" Width="382" Height="232" VerticalAlignment="Top" Background="#FFEDEBEB">
-            <ItemsControl x:Name="ItemsControlSections" ItemsSource="{Binding NewsSections}" ItemTemplate="{StaticResource NewsSectionTemplate}" Height="731" Width="346"/>
+        <ScrollViewer Margin="0,123,0,0" HorizontalAlignment="Center" Width="382" Height="232" VerticalAlignment="Top" Background="#FFEDEBEB" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <ItemsControl x:Name="ItemsControlSections"
+                      ItemsSource="{Binding NewsSections}"
+                      ItemTemplate="{StaticResource NewsSectionTemplate}" 
+                      Width="346"/>
+            </StackPanel>
         </ScrollViewer>
         <Canvas x:Name="CanvasProgress" Background="#FFCACACA" HorizontalAlignment="Center" Width="300" Height="100" VerticalAlignment="Top" Margin="0,143,0,0" Visibility="Hidden">
             <ProgressBar x:Name="ProgressBarFit" Height="20" Width="268" FontSize="16" HorizontalAlignment="Center" Canvas.Left="16" Canvas.Top="73" VerticalAlignment="Top"/>
             <Label Content="Загрузка новостей" FontSize="16" HorizontalAlignment="Center" Canvas.Left="74" VerticalAlignment="Top" FontWeight="Bold" Canvas.Top="3"/>
             <Label x:Name="LabelProgress" FontSize="14" Canvas.Left="10" Canvas.Top="36" HorizontalAlignment="Center" VerticalAlignment="Top"/>
         </Canvas>
-        <CheckBox x:Name="CheckBoxSelectAll" Content="Выделить все" FontSize="16" HorizontalAlignment="Right" Margin="0,90,240,0" VerticalAlignment="Top" Width="134" Checked="CheckBoxSelectAll_Checked" Unchecked="CheckBoxSelectAll_Unchecked"/>
+        <CheckBox x:Name="CheckBoxSelectAll" Content="Выделить все" FontSize="16" HorizontalAlignment="Left" Margin="258,98,0,0" VerticalAlignment="Top" Width="134" Checked="CheckBoxSelectAll_Checked" Unchecked="CheckBoxSelectAll_Unchecked"/>
+        <TextBox x:Name="TextBoxPathToNews" FontSize="16" HorizontalAlignment="Left" Margin="62,19,0,0" Text="" VerticalAlignment="Top" Width="311"/>
+        <Label Content="Путь:" FontSize="16" HorizontalAlignment="Right" Margin="0,15,345,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="CheckBoxLoadAsTrainTexts" Content="Загрузить новости как тренировочные тексты" FontSize="16" HorizontalAlignment="Center" Margin="0,51,0,0" VerticalAlignment="Top" IsChecked="False" Checked="CheckBoxLoadAsTrainTexts_Checked"/>
+        <Button x:Name="ButtonSetPathToNews" Content="..." FontSize="16" HorizontalAlignment="Left" Margin="378,17,0,0" VerticalAlignment="Top" Click="ButtonSetPathToNews_Click"/>
     </Grid>
 </Window>

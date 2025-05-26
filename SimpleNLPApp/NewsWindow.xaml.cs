@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using SimpleNLP;
+using SimpleNLP.Classification;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -9,12 +11,19 @@ namespace SimpleNLPApp
     {
         private NewsParser parser;
         public ObservableCollection<NewsSection> NewsSections { get; set; } = new ObservableCollection<NewsSection>();
+        private bool model_is_trained;
+        List<string> _classes;
+        List<Text> _texts;
 
-        public NewsWindow()
+        public NewsWindow(List<string> classes, List<Text> texts, PredictModel model)
         {
             InitializeComponent();
             DataContext = this;
+            model_is_trained = model.IsTrained;
+            _classes = classes;
+            _texts = texts;
             LoadSectionsAsync();
+            TextBoxPathToNews.Text = Properties.Settings.Default.StringSaveNews;
         }
 
         private async void LoadSectionsAsync()
@@ -47,6 +56,12 @@ namespace SimpleNLPApp
                 return;
             }
 
+            ItemsControlSections.IsEnabled = false;
+            ButtonSetPathToNews.IsEnabled = false;
+            TextBoxPathToNews.IsEnabled = false;
+            CheckBoxLoadAsTrainTexts.IsEnabled = false;
+            CheckBoxSelectAll.IsEnabled = false;
+
             CanvasProgress.Visibility = Visibility.Visible;
             ProgressBarFit.Value = 0;
             LabelProgress.Content = "Подготовка к загрузке...";
@@ -76,9 +91,13 @@ namespace SimpleNLPApp
 
                 foreach (var kvp in allNews)
                 {
-                    string sectionPath = Path.Combine(Directory.GetCurrentDirectory(), "News", kvp.Key);
+                    string sectionPath = Path.Combine(TextBoxPathToNews.Text, "News", kvp.Key);
                     Directory.CreateDirectory(sectionPath);
                     SaveNewsFromOneSection(sectionPath, kvp.Value);
+                    if (CheckBoxLoadAsTrainTexts.IsChecked == true)
+                    {
+                        LoadNewsAsTrainTexts(kvp);
+                    }
                 }
 
                 MessageBox.Show($"Успешно сохранено {downloaded} новостей!");
@@ -90,7 +109,36 @@ namespace SimpleNLPApp
             finally
             {
                 CanvasProgress.Visibility = Visibility.Hidden;
+                this.Close();
             }
+        }
+
+        private void LoadNewsAsTrainTexts(KeyValuePair<string,List<NewsItem>> kvp)
+        {
+            foreach (NewsItem news in kvp.Value) 
+            {
+                if(news.Body == "" || news.Body == null)
+                {
+                    continue;
+                }
+                Text text = new Text(news.Title + news.Date.ToString(), kvp.Key, news.Body, true);
+                if (!CheckAddedNews(text))
+                    _texts.Add(text);
+                if (!_classes.Contains(kvp.Key))
+                    _classes.Add(kvp.Key);
+            }
+        }
+
+        private bool CheckAddedNews(Text added_text)
+        {
+            foreach(Text text in _texts)
+            {
+                if (text.Equals(added_text))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void SaveNewsFromOneSection(string sectionPath, List<NewsItem> news)
@@ -145,6 +193,27 @@ namespace SimpleNLPApp
                 s.DownloadSection = false;
             }
             ItemsControlSections.Items.Refresh();
+        }
+
+        private void ButtonSetPathToNews_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFolderDialog openFolderDialog = new OpenFolderDialog();
+            if (openFolderDialog.ShowDialog() == false) return;
+            if (openFolderDialog.FolderName == null || openFolderDialog.FolderName == "") return;
+
+            Properties.Settings.Default.StringSaveNews = openFolderDialog.FolderName;
+            Properties.Settings.Default.Save();
+            TextBoxPathToNews.Text = openFolderDialog.FolderName;
+        }
+
+        private void CheckBoxLoadAsTrainTexts_Checked(object sender, RoutedEventArgs e)
+        {
+            if (model_is_trained)
+            {
+                MessageBox.Show("Модель уже была обучена. Добавление новых тренировочных текстов невозможно.");
+                CheckBoxLoadAsTrainTexts.IsChecked = false;
+                return;
+            }
         }
     }
 }

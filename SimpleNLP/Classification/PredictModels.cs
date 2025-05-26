@@ -10,6 +10,7 @@ namespace SimpleNLP.Classification
     {
         NaiveBayes,
         LogisticRegression,
-        SVM
+        SVM,
+        KNN
     }
 }
