@@ -22,11 +22,14 @@
         private static string FindLemm(string word)
         {
             if(word.Length <= 0) return word;
+            word = ReplaceE(word);
             char firstChar = word[0];
             if ((firstChar >= 'А' && firstChar <= 'Я') ||
             (firstChar >= 'а' && firstChar <= 'я') ||
             firstChar == 'Ё' || firstChar == 'ё')
             {
+                if (firstChar == 'ь' || firstChar == 'ъ' || firstChar == 'ы')
+                    return word;
                 using (StreamReader reader = new StreamReader("Dictionary\\" + word[0] + ".txt"))
                 {
                     string line;
@@ -45,6 +48,11 @@
                 return word;
             }
             else { return word; }
+        }
+
+        private static string ReplaceE(string word)
+        {
+            return word.Replace('ё', 'e');
         }
     }
 }

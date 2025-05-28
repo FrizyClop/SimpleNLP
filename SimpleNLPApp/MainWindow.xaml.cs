@@ -37,7 +37,7 @@ namespace SimpleNLPApp
                     MessageBox.Show("Выберите одну из доступных моделей!");
                     return;
                 case 0:
-                    modelWindow = new ModelWindow(TextBoxName.Text, new NaiveBayesParameters(SliderAlpha.Value));
+                    modelWindow = new ModelWindow(TextBoxName.Text, new NaiveBayesParameters(Math.Round(SliderAlpha.Value,2)));
                     break;
                 case 1:
                     modelWindow = new ModelWindow(TextBoxName.Text, new LogisticRegressionParameters(Math.Round(SliderLRLearningRate.Value,4),Convert.ToInt32(SliderEpochs.Value)));
@@ -47,6 +47,9 @@ namespace SimpleNLPApp
                     break;
                 case 3:
                     modelWindow = new ModelWindow(TextBoxName.Text, new KNNParameters(Convert.ToInt32(SliderKNNk.Value)));
+                    break;
+                case 4:
+                    modelWindow = new ModelWindow(TextBoxName.Text, new DecisionTreeParameters(Convert.ToInt32(SliderDecisionTreeMaxDepth.Value)));
                     break;
             }
 
@@ -138,6 +141,9 @@ namespace SimpleNLPApp
                 case 3:
                     ChangeParameters(3);
                     break;
+                case 4:
+                    ChangeParameters(4);
+                    break;
             }
         }
 
@@ -170,6 +176,11 @@ namespace SimpleNLPApp
                 KNNParameters.Visibility = Visibility.Visible;
             else
                 KNNParameters.Visibility = Visibility.Hidden;
+
+            if (index == 4)
+                DecisionTreeParameters.Visibility = Visibility.Visible;
+            else
+                DecisionTreeParameters.Visibility = Visibility.Hidden;
         }
 
         private void ComboBoxType_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -324,6 +335,17 @@ namespace SimpleNLPApp
         private void TextBoxKNNk_LostFocus(object sender, RoutedEventArgs e)
         {
             TextBoxCheckValidation(TextBoxKNNk, SliderKNNk, "3", true);
+        }
+
+        private void SliderDecisionTreeMaxDepth_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TextBoxDecisionTreeMaxDepth == null) return;
+            TextBoxDecisionTreeMaxDepth.Text = SliderDecisionTreeMaxDepth.Value.ToString();
+        }
+
+        private void TextBoxDecisionTreeMaxDepth_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBoxCheckValidation(TextBoxDecisionTreeMaxDepth, SliderDecisionTreeMaxDepth, "5", true);
         }
     }
 }

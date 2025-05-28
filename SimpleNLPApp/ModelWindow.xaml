@@ -57,19 +57,6 @@
             </Grid.RowDefinitions>
 
             <!-- Canvas Progress -->
-            <Canvas x:Name="CanvasProgress"
-                    Background="#FFCACACA"
-                    Height="100"
-                    Width="300"
-                    VerticalAlignment="Top"
-                    Visibility="Hidden"
-                    HorizontalAlignment="Center"
-                    Margin="0,10,0,10"
-                    Grid.Row="0">
-                <ProgressBar x:Name="ProgressBarFit" Height="20" Width="268" Canvas.Left="16" Canvas.Top="65"/>
-                <Label Content="Обучение модели" FontSize="16" Canvas.Left="74"/>
-                <Label x:Name="LabelProgress" Content="Label" FontSize="16" Canvas.Left="16" Canvas.Top="34" Width="268"/>
-            </Canvas>
 
             <!-- Верхний блок параметров -->
             <Grid Margin="10,10,360,5" HorizontalAlignment="Left">
@@ -145,6 +132,9 @@
                 <Canvas x:Name="KNNParameters" Visibility="Hidden">
                     <Label x:Name="LabelKNNk" Content="k: " FontSize="16" Canvas.Top="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Canvas>
+                <Canvas x:Name="DecisionTreeParameters" Visibility="Hidden">
+                    <Label x:Name="LabelDecisionTreeMaxDepth" Content="Max depth: " FontSize="16" Canvas.Top="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Canvas>
             </Grid>
 
             <!-- Список текстов -->
@@ -152,7 +142,7 @@
 
                 <ListBox x:Name="ListBoxTrainTexts"
                          FontSize="18"
-                         SelectionMode="Multiple">
+                         SelectionMode="Extended">
                     <ListBox.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Изменить класс" Click="ContextMenuSetClass_Click"/>
@@ -171,5 +161,16 @@
                           Unchecked="CheckBox_Unchecked" Height="44"/>
             </Grid>
         </Grid>
+        <Canvas x:Name="CanvasProgress"
+                    Background="#FFCACACA"
+                    Height="100"
+                    Width="300"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center" Grid.Row="1" Visibility="Hidden"
+                    >
+            <ProgressBar x:Name="ProgressBarFit" Height="20" Width="268" Canvas.Left="16" Canvas.Top="65"/>
+            <Label Content="Обучение модели" FontSize="16" Canvas.Left="74"/>
+            <Label x:Name="LabelProgress" Content="Label" FontSize="16" Canvas.Left="16" Canvas.Top="34" Width="268"/>
+        </Canvas>
     </Grid>
 </Window>

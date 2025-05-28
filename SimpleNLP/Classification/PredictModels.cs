@@ -11,6 +11,7 @@ namespace SimpleNLP.Classification
         NaiveBayes,
         LogisticRegression,
         SVM,
-        KNN
+        KNN,
+        DecisionTree
     }
 }

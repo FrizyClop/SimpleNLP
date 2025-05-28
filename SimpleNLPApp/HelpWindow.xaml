@@ -28,7 +28,9 @@
                 <TreeViewItem x:Name="TreeViewItemLogisticRegression" Header="Логистическая регрессия" Tag="HelpModelLogistic"/>
                 <TreeViewItem x:Name="TreeViewItemSVM" Header="SVM (Опорные векторы)" Tag="HelpModelSVM"/>
                 <TreeViewItem Header="KNN (k-ближайших соседей)" Tag="HelpModelKNN"/>
+                <TreeViewItem Header="Decision tree (Дерево решений)" Tag="HelpDecisionTree"/>
                 <TreeViewItem Header="Обучение модели" Tag="HelpModelTraining"/>
+                <TreeViewItem Header="Выгрузка модели" Tag="HelpModelExport"/>
             </TreeViewItem>
 
             <TreeViewItem x:Name="TreeViewItemTexts" Header="Работа с текстами" Tag="HelpText">

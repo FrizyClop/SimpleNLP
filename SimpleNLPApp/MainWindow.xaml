@@ -17,13 +17,14 @@
                 <System:String>Логистическая регрессия</System:String>
                 <System:String>Метод Опорных Векторов (SVM)</System:String>
                 <System:String>KNN классификатор</System:String>
+                <System:String>Дерево решений</System:String>
             </ComboBox>
             <Canvas x:Name="Parameters" Margin="0,122,0,94">
                 <Label Content="Параметры:" Canvas.Left="8" Canvas.Top="2" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                 <Grid x:Name="BayesParameters" Height="147" Width="343" d:IsHidden="True">
                     <Label x:Name="Label" Content="Alpha:" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,28,0,0"/>
                     <Slider x:Name="SliderAlpha" Width="215" Value="1" Maximum="2" Height="20" SmallChange="0.01" ValueChanged="SliderAlpha_ValueChanged" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="104,35,0,0" FontSize="16"/>
-                    <TextBox x:Name="TextBoxBayesAlpha" FontSize="16" HorizontalAlignment="Left" Margin="65,33,0,0" TextWrapping="NoWrap" Text="0,1" VerticalAlignment="Top" Width="34" LostFocus="TextBoxBayesAlpha_LostFocus" />
+                    <TextBox x:Name="TextBoxBayesAlpha" FontSize="16" HorizontalAlignment="Left" Margin="65,33,0,0" TextWrapping="NoWrap" Text="1" VerticalAlignment="Top" Width="34" LostFocus="TextBoxBayesAlpha_LostFocus" />
                 </Grid>
                 <Grid x:Name="LogisticRegressionParameters" Height="147" Width="343" d:IsHidden="True">
                     <Label Content="Learning rate" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" FontSize="16"/>
@@ -44,10 +45,15 @@
                     <TextBox x:Name="TextBoxSVMLearningRate" FontSize="16" HorizontalAlignment="Left" Margin="125,71,0,0" TextWrapping="NoWrap" Text="0,01" VerticalAlignment="Top" Width="61" LostFocus="TextBoxSVMLearningRate_LostFocus"/>
                     <TextBox x:Name="TextBoxSVMLambda" FontSize="16" HorizontalAlignment="Left" Margin="125,107,0,0" TextWrapping="NoWrap" Text="0,1" VerticalAlignment="Top" Width="61" LostFocus="TextBoxSVMLambda_LostFocus"/>
                 </Grid>
-                <Grid x:Name="KNNParameters" Height="147" Width="343">
+                <Grid x:Name="KNNParameters" Height="147" Width="343" d:IsHidden="True">
                     <Label Content="k:" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" FontSize="16"/>
-                    <Slider x:Name="SliderKNNk" HorizontalAlignment="Left" Margin="79,38,0,0" VerticalAlignment="Top" Width="245" FontSize="16" Minimum="1" Maximum="15" SmallChange="1" LargeChange="10" Value="500" ValueChanged="SliderKNNk_ValueChanged" IsSnapToTickEnabled="True"/>
+                    <Slider x:Name="SliderKNNk" HorizontalAlignment="Left" Margin="79,38,0,0" VerticalAlignment="Top" Width="245" FontSize="16" Minimum="1" Maximum="15" SmallChange="1" LargeChange="10" Value="3" ValueChanged="SliderKNNk_ValueChanged" IsSnapToTickEnabled="True"/>
                     <TextBox x:Name="TextBoxKNNk" FontSize="16" HorizontalAlignment="Left" Margin="38,35,0,0" TextWrapping="NoWrap" Text="3" VerticalAlignment="Top" Width="36" LostFocus="TextBoxKNNk_LostFocus"/>
+                </Grid>
+                <Grid x:Name="DecisionTreeParameters" Height="147" Width="343" HorizontalAlignment="Center" VerticalAlignment="Center" d:IsHidden="True">
+                    <Label Content="Max Depth:" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" FontSize="16"/>
+                    <Slider x:Name="SliderDecisionTreeMaxDepth" HorizontalAlignment="Left" Margin="142,38,0,0" VerticalAlignment="Top" Width="182" FontSize="16" Minimum="3" Maximum="20" SmallChange="1" LargeChange="10" Value="5" ValueChanged="SliderDecisionTreeMaxDepth_ValueChanged" IsSnapToTickEnabled="True"/>
+                    <TextBox x:Name="TextBoxDecisionTreeMaxDepth" FontSize="16" HorizontalAlignment="Left" Margin="101,35,0,0" TextWrapping="NoWrap" Text="5" VerticalAlignment="Top" Width="36" LostFocus="TextBoxDecisionTreeMaxDepth_LostFocus"/>
                 </Grid>
             </Canvas>
             <Button x:Name="ButtonPrev" Content="Назад" Margin="25,269,196,0" FontSize="16" Height="47" VerticalAlignment="Top" Click="ButtonPrev_Click"/>

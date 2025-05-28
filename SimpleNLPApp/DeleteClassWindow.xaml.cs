@@ -11,13 +11,15 @@ namespace SimpleNLPApp
     {
         List<Text> _list;
         ComboBox _comboBox;
+        List<string> _classes;
 
-        public DeleteClassWindow(ComboBox cb,List<Text> list)
+        public DeleteClassWindow(List<string> _classes,ComboBox cb,List<Text> list)
         {
             InitializeComponent();
             CopyInfoToList(cb);
             _list = list;
             _comboBox = cb;
+            this._classes = _classes;
         }
 
         private void CopyInfoToList(ComboBox cb)
@@ -38,6 +40,7 @@ namespace SimpleNLPApp
             foreach(var item in ListBoxClasses.SelectedItems)
             {
                 _comboBox.Items.Remove(item.ToString());
+                _classes.Remove(item.ToString());
                 DeleteClassInTexts(item.ToString());
             }
             MessageBox.Show("Классы удалены!");

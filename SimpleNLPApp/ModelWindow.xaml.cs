@@ -65,6 +65,15 @@ namespace SimpleNLPApp
             FirstOpen();
         }
 
+        public ModelWindow(string name, DecisionTreeParameters param)
+        {
+            InitializeComponent();
+            name_of_model = name;
+            model = new DecisionTreeClassifier(param);
+            model_type = PredictModels.DecisionTree;
+            FirstOpen();
+        }
+
         public ModelWindow(string name, string json_representation)
         {
             InitializeComponent();
@@ -80,6 +89,7 @@ namespace SimpleNLPApp
             texts = new List<Text>();
             classes = new List<string>();
             ListBoxTrainTexts.ItemsSource = texts;
+            ListBoxTrainTexts.SelectionMode = SelectionMode.Extended;
             LoadClassesIntoComboBox();
             ShowTypeOfModel();
             ShowParametersOfModel();
@@ -112,6 +122,9 @@ namespace SimpleNLPApp
                 case PredictModels.KNN:
                     LabelModel.Content += " KNN (k-ближайших соседей)";
                     break;
+                case PredictModels.DecisionTree:
+                    LabelModel.Content += " Дерево решений";
+                    break;
             }
         }
 
@@ -141,6 +154,11 @@ namespace SimpleNLPApp
                     KNNClassifier knn_model = (KNNClassifier)model;
                     LabelKNNk.Content = LabelKNNk.Content.ToString() + knn_model.K;
                     KNNParameters.Visibility = Visibility.Visible;
+                    break;
+                case PredictModels.DecisionTree:
+                    DecisionTreeClassifier decision_tree_model = (DecisionTreeClassifier)model;
+                    LabelDecisionTreeMaxDepth.Content = LabelDecisionTreeMaxDepth.Content.ToString() + decision_tree_model.MaxDepth;
+                    DecisionTreeParameters.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -234,7 +252,7 @@ namespace SimpleNLPApp
         private void MenuItemDeleteClass_Click(object sender, RoutedEventArgs e)
         {
             if (!ChekingForClass()) return;
-            DeleteClassWindow dcw = new DeleteClassWindow(ComboBoxClasses, texts);
+            DeleteClassWindow dcw = new DeleteClassWindow(classes,ComboBoxClasses, texts);
             dcw.ShowDialog();
             ListBoxTrainTexts.Items.Refresh();
         }
@@ -568,6 +586,11 @@ namespace SimpleNLPApp
                 {
                     model_type = PredictModels.KNN;
                     return new KNNClassifier(model_json);
+                }
+                else if (model_json.GetProperty("Model").GetString() == "DecisionTree")
+                {
+                    model_type = PredictModels.DecisionTree;
+                    return new DecisionTreeClassifier(model_json);
                 }
             }
             catch (Exception ex)

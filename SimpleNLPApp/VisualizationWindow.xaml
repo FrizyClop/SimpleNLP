@@ -1,0 +1,29 @@
+﻿<Window x:Class="SimpleNLPApp.VisualizationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+       Title="Визуализация" Height="600" Width="1000">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Матрица ошибок -->
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="Матрица ошибок" 
+                       FontSize="18" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+            <Viewbox Stretch="Uniform">
+                <Canvas x:Name="ConfusionCanvas" Width="500" Height="500"/>
+            </Viewbox>
+        </StackPanel>
+
+        <!-- Precision/Recall -->
+        <StackPanel Grid.Column="1">
+            <TextBlock Text="Precision / Recall по классам" 
+                       FontSize="18" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+            <Viewbox Stretch="Uniform">
+                <Canvas x:Name="PrecisionRecallCanvas" Width="500" Height="500"/>
+            </Viewbox>
+        </StackPanel>
+    </Grid>
+</Window>

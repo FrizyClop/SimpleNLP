@@ -55,12 +55,18 @@ namespace SimpleNLPApp
                 MessageBox.Show("Не выбрано ни одной секции для скачивания!");
                 return;
             }
+            if (!Directory.Exists(TextBoxPathToNews.Text) || TextBoxPathToNews.Text == "")
+            {
+                MessageBox.Show("Выберите существующую папку для сохранения файлов!");
+                return;
+            }
 
             ItemsControlSections.IsEnabled = false;
             ButtonSetPathToNews.IsEnabled = false;
             TextBoxPathToNews.IsEnabled = false;
             CheckBoxLoadAsTrainTexts.IsEnabled = false;
             CheckBoxSelectAll.IsEnabled = false;
+            ButtonDownloadNews.IsEnabled = false;
 
             CanvasProgress.Visibility = Visibility.Visible;
             ProgressBarFit.Value = 0;
